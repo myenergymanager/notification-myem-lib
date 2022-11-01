@@ -3,6 +3,7 @@ pipeline{
     environment{
            // GEnerate random number between 0 and 1000
            DISCORD_WEBHOOK_URL = credentials('discord-webhook')
+           GITHUB_CREDENTIALS = credentials('github myem developer')
            INTEGRATION_TESTS_CONTAINERS_PREFIX = "${Math.abs(new Random().nextInt(1000+1))}"
            INTEGRATION_TESTS_NETWORK = "traefik_default"
     }
