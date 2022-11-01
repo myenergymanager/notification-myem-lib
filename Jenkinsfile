@@ -3,6 +3,8 @@ pipeline{
     environment{
            // GEnerate random number between 0 and 1000
            DISCORD_WEBHOOK_URL = credentials('discord-webhook')
+           INTEGRATION_TESTS_CONTAINERS_PREFIX = "${Math.abs(new Random().nextInt(1000+1))}"
+           INTEGRATION_TESTS_NETWORK = "traefik_default"
     }
 
     stages{
@@ -37,10 +39,17 @@ pipeline{
             }
         }
 
+        stage('Launch-novu'){
+            steps('Launch Novu'){
+                sh "./tests/test_environment/start.sh  ${INTEGRATION_TESTS_NETWORK} ${INTEGRATION_TESTS_CONTAINERS_PREFIX}"
+            }
+
         stage('Unit-test'){
             steps('Unit test'){
                 sh "pipenv run coverage run --source=notification_lib -m pytest -v -s --junit-xml=reports/report.xml tests && pipenv run coverage xml"
             }
+
+        }
 
         }
         stage('build && SonarQube analysis') {
@@ -68,6 +77,7 @@ pipeline{
         always{
             echo "build finished"
             junit 'reports/*.xml'
+            sh "./tests/integration_utils/stop.sh ${INTEGRATION_TESTS_NETWORK} ${INTEGRATION_TESTS_CONTAINERS_PREFIX}"
 
         }
 
