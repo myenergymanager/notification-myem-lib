@@ -39,9 +39,16 @@ pipeline{
             }
         }
 
-        stage('Launch-novu'){
-            steps('Launch Novu'){
-                sh "./tests/test_environment/start.sh  ${INTEGRATION_TESTS_NETWORK} ${INTEGRATION_TESTS_CONTAINERS_PREFIX}"
+        stage('Launch-novu') {
+            environment {
+                registryCredential = 'dockerhub'
+            }
+            steps {
+               script {
+                    docker.withRegistry( '', registryCredential ) {
+                        sh "./tests/test_environment/start.sh  ${INTEGRATION_TESTS_NETWORK} ${INTEGRATION_TESTS_CONTAINERS_PREFIX}"
+                    }
+               }
             }
         }
 
