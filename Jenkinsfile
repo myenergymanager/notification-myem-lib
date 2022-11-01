@@ -43,15 +43,14 @@ pipeline{
             steps('Launch Novu'){
                 sh "./tests/test_environment/start.sh  ${INTEGRATION_TESTS_NETWORK} ${INTEGRATION_TESTS_CONTAINERS_PREFIX}"
             }
+        }
 
         stage('Unit-test'){
             steps('Unit test'){
                 sh "pipenv run coverage run --source=notification_lib -m pytest -v -s --junit-xml=reports/report.xml tests && pipenv run coverage xml"
             }
-
         }
 
-        }
         stage('build && SonarQube analysis') {
             environment {
                 scannerHome = tool 'SonarQubeScanner'
