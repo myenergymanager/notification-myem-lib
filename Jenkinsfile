@@ -84,7 +84,7 @@ pipeline{
         always{
             echo "build finished"
             junit 'reports/*.xml'
-            sh "./tests/integration_utils/stop.sh ${INTEGRATION_TESTS_NETWORK} ${INTEGRATION_TESTS_CONTAINERS_PREFIX}"
+            sh "./tests/test_environment/stop.sh ${INTEGRATION_TESTS_NETWORK} ${INTEGRATION_TESTS_CONTAINERS_PREFIX}"
 
         }
 
