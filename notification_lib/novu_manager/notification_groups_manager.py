@@ -3,6 +3,10 @@ from notification_lib.http_requests import HttpRequester
 
 
 class NotificationGroupsManager(HttpRequester):
-    """Notification groups manager class."""
+    """The notification group is used to group multiple notification templates into a single group.
 
-    pass
+    Currently only used behind the scenes for organisational purposes.
+    This Manager helps us create and get notification groups.
+    """
+
+    raise NotImplementedError

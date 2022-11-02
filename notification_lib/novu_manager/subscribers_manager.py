@@ -23,8 +23,14 @@ reversed_subscriber_mirror = {item: key for key, item in subscriber_mirror.items
 
 
 class SubscribersManager(HttpRequester):
-    """Subscribers Manager class."""
+    """Novu manages users in a specific subscribers data model.
 
+    This manager is built to communicate.
+    With the novu subscribers api, it provides a crud for now.
+    """
+
+    # PS: we are using casts to keep our typing clean, because list comprehensions
+    # and dict comprehensions gives back a type of Dict[str, Any]
     def get_subscriber(self, subscriber_id: Union[str, UUID]) -> Optional[subscriberType]:
         """Get subscriber by id."""
         if isinstance(subscriber_id, UUID):

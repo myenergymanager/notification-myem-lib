@@ -4,6 +4,10 @@ from notification_lib.http_requests import HttpRequester
 
 
 class IntegrationsManager(HttpRequester):
-    """Integrations Manager class."""
+    """Novu's integrations used to configure the final delivery providers for each channel.
 
-    pass
+    Provider channels are E-MAIL, SMS and In-app notification center for now.
+    This manager helps us crud providers (with credentials).
+    """
+
+    raise NotImplementedError

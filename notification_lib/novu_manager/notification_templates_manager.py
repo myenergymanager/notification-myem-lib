@@ -3,6 +3,10 @@ from notification_lib.http_requests import HttpRequester
 
 
 class NotificationTemplatesManager(HttpRequester):
-    """Notification templates Manager class."""
+    """A template holds the entire flow of messages sent to the subscriber.
 
-    pass
+    This is where all the different channels are tied together under a single entity.
+    this manager helps us crud templates.
+    """
+
+    raise NotImplementedError
