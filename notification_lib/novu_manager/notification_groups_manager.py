@@ -9,4 +9,4 @@ class NotificationGroupsManager(HttpRequester):
     This Manager helps us create and get notification groups.
     """
 
-    raise NotImplementedError
+    pass  # NotImplementedYet

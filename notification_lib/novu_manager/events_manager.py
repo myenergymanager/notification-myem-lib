@@ -10,4 +10,4 @@ class EventsManager(HttpRequester):
     We can also broadcast and cancel an event.
     """
 
-    raise NotImplementedError
+    pass  # NotImplementedYet

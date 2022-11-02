@@ -10,4 +10,4 @@ class IntegrationsManager(HttpRequester):
     This manager helps us crud providers (with credentials).
     """
 
-    raise NotImplementedError
+    pass  # NotImplementedYet

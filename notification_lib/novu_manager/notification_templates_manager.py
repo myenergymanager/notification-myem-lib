@@ -9,4 +9,4 @@ class NotificationTemplatesManager(HttpRequester):
     this manager helps us crud templates.
     """
 
-    raise NotImplementedError
+    pass  # NotImplementedYet
