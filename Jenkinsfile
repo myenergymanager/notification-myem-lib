@@ -47,7 +47,6 @@ pipeline{
             steps {
                script {
                     docker.withRegistry( '', registryCredential ) {
-                        sh "chmod +x -R ${env.WORKSPACE}"
                         sh "./tests/test_environment/start.sh  ${INTEGRATION_TESTS_NETWORK} ${INTEGRATION_TESTS_CONTAINERS_PREFIX}"
                     }
                }
