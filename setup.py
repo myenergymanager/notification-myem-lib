@@ -14,7 +14,7 @@ setup(
     zip_safe=False,
     include_package_data=True,
     platforms="any",
-    install_requires=["importlib-metadata==4.13.0", "typing_extensions==4.0.1"],
+    install_requires=["importlib-metadata==4.13.0", "typing_extensions==4.0.1", "requests==2.28.1"],
     extras_require={
         "dev": [
             # this depdency should be present in the client, we only used it here for test.

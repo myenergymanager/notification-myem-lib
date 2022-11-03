@@ -3,6 +3,9 @@ pipeline{
     environment{
            // GEnerate random number between 0 and 1000
            DISCORD_WEBHOOK_URL = credentials('discord-webhook')
+           GITHUB_CREDENTIALS = credentials('github myem developer')
+           INTEGRATION_TESTS_CONTAINERS_PREFIX = "${Math.abs(new Random().nextInt(1000+1))}"
+           INTEGRATION_TESTS_NETWORK = "traefik_default"
     }
 
     stages{
@@ -37,12 +40,22 @@ pipeline{
             }
         }
 
-        stage('Unit-test'){
-            steps('Unit test'){
-                sh "pipenv run coverage run --source=notification_lib -m pytest -v -s --junit-xml=reports/report.xml tests && pipenv run coverage xml"
+        stage('Launch-novu && Unit-test') {
+            environment {
+                registryCredential = 'dockerhub'
             }
-
+            steps {
+               script {
+                    docker.withRegistry( '', registryCredential ) {
+                        sh ("""cd tests/test_environment && \
+                        docker-compose -p ${INTEGRATION_TESTS_CONTAINERS_PREFIX} up -d && \
+                        sleep 10 && export API_URL=http://${INTEGRATION_TESTS_CONTAINERS_PREFIX}_api_1:3000 && export API_KEY=`python3 get_api_key.py` && cd ../.. && \
+                        pipenv run coverage run --source=notification_lib -m pytest -v -s --junit-xml=reports/report.xml tests && pipenv run coverage xml""")
+                    }
+               }
+            }
         }
+
         stage('build && SonarQube analysis') {
             environment {
                 scannerHome = tool 'SonarQubeScanner'
@@ -68,7 +81,7 @@ pipeline{
         always{
             echo "build finished"
             junit 'reports/*.xml'
-
+            sh "cd tests/test_environment &&  docker-compose -p ${INTEGRATION_TESTS_CONTAINERS_PREFIX} down -v && cd ../.."
         }
 
     }

@@ -1,0 +1,40 @@
+version: "3"
+services:
+  redis:
+    image: "redis:alpine"
+    logging:
+      driver: "none"
+  mongodb:
+    image: mongo
+    logging:
+      driver: "none"
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - mongodb:/data/db
+    restart: unless-stopped
+  api:
+    image: "ghcr.io/novuhq/novu/api:0.8.0"
+    depends_on:
+      - mongodb
+      - redis
+    environment:
+      NODE_ENV: local
+      DISABLE_USER_REGISTRATION: "false"
+      PORT: "3000"
+      MONGO_URL: mongodb://mongodb:27017/novu-db
+      REDIS_HOST: ${INTEGRATION_TESTS_CONTAINERS_PREFIX}_redis_1
+      REDIS_PORT: "6379"
+      REDIS_DB_INDEX: 2
+      JWT_SECRET: ${JWT_SECRET}
+      STORE_ENCRYPTION_KEY: ${STORE_ENCRYPTION_KEY}
+
+volumes:
+  mongodb:
+    name: ${INTEGRATION_TESTS_CONTAINERS_PREFIX}_mongodb
+
+networks:
+  default:
+    external: true
+    name: ${INTEGRATION_TESTS_NETWORK}
