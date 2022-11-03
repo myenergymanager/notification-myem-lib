@@ -40,22 +40,20 @@ pipeline{
             }
         }
 
-        stage('Launch-novu') {
+        stage('Launch-novu && Unit-test') {
             environment {
                 registryCredential = 'dockerhub'
             }
             steps {
                script {
                     docker.withRegistry( '', registryCredential ) {
-                        sh "./tests/test_environment/start.sh  ${INTEGRATION_TESTS_NETWORK} ${INTEGRATION_TESTS_CONTAINERS_PREFIX}"
+                        sh "cd tests/test_environment"
+                        sh "docker-compose -p ${INTEGRATION_TESTS_CONTAINERS_PREFIX} up -d && sleep 10"
+                        sh "export API_URL=http://${INTEGRATION_TESTS_CONTAINERS_PREFIX}_api_1):3000"
+                        sh "export API_KEY=$(python3 get_api_key.py) && cd ../.."
+                        sh "pipenv run coverage run --source=notification_lib -m pytest -v -s --junit-xml=reports/report.xml tests && pipenv run coverage xml"
                     }
                }
-            }
-        }
-
-        stage('Unit-test'){
-            steps('Unit test'){
-                sh "pipenv run coverage run --source=notification_lib -m pytest -v -s --junit-xml=reports/report.xml tests && pipenv run coverage xml"
             }
         }
 
@@ -84,8 +82,7 @@ pipeline{
         always{
             echo "build finished"
             junit 'reports/*.xml'
-            sh "./tests/test_environment/stop.sh ${INTEGRATION_TESTS_NETWORK} ${INTEGRATION_TESTS_CONTAINERS_PREFIX}"
-
+            sh "cd tests/test_environment &&  docker-compose -p ${INTEGRATION_TESTS_CONTAINERS_PREFIX} down -v && cd ../.."
         }
 
     }

@@ -96,3 +96,8 @@ services:
       - 4701:4701
 volumes:
   mongodb: ~
+
+networks:
+  default:
+    external: true
+    name: docker_default
