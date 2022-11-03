@@ -50,7 +50,7 @@ pipeline{
                         sh "cd tests/test_environment"
                         sh "docker-compose -p ${INTEGRATION_TESTS_CONTAINERS_PREFIX} up -d && sleep 10"
                         sh "export API_URL=http://${INTEGRATION_TESTS_CONTAINERS_PREFIX}_api_1):3000"
-                        sh "export API_KEY=$(python3 get_api_key.py) && cd ../.."
+                        sh "export API_KEY=`python3 get_api_key.py` && cd ../.."
                         sh "pipenv run coverage run --source=notification_lib -m pytest -v -s --junit-xml=reports/report.xml tests && pipenv run coverage xml"
                     }
                }
