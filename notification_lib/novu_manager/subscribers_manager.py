@@ -1,7 +1,6 @@
 """Subscribers manager file."""
 from math import ceil
 from typing import Any, cast, List, Optional, Union
-from uuid import UUID
 
 from notification_lib.exceptions import NotificationException
 from notification_lib.http_requests import HttpRequester
@@ -31,10 +30,8 @@ class SubscribersManager(HttpRequester):
 
     # PS: we are using casts to keep our typing clean, because list comprehensions
     # and dict comprehensions gives back a type of Dict[str, Any]
-    def get_subscriber(self, subscriber_id: Union[str, UUID]) -> Optional[subscriberType]:
+    def get_subscriber(self, subscriber_id: str) -> Optional[subscriberType]:
         """Get subscriber by id."""
-        if isinstance(subscriber_id, UUID):
-            subscriber_id = str(subscriber_id)
         response = self.send_request(
             operation="GET",
             endpoint=f"/v1/subscribers/{subscriber_id}",
@@ -48,8 +45,28 @@ class SubscribersManager(HttpRequester):
         )
         return subscriber
 
+    def get_subscribers_based_on_page(self, page: int) -> subscriberPageType:
+        """Get subscribers per page."""
+        response = self.send_request(
+            operation="GET",
+            endpoint=f"/v1/subscribers?page={page - 1}",
+        )
+        json_response = super().handle_response(response, "Can't retrieve subscribers !").json()
+        return {
+            "items": cast(
+                List[subscriberType],
+                [
+                    {value: subscriber[key] for key, value in subscriber_mirror.items()}
+                    for subscriber in json_response["data"]
+                ],
+            ),
+            "page": page,
+            "size": json_response["pageSize"],
+            "total": json_response["totalCount"],
+        }
+
     def get_subscribers(
-        self, page: Optional[int] = None, subscribers_ids: Optional[List[Union[str, UUID]]] = None
+        self, page: Optional[int] = None, subscribers_ids: Optional[List[str]] = None
     ) -> Union[List[subscriberType], subscriberPageType]:
         """Get subscribers, apply pagination if required."""
 
@@ -66,44 +83,18 @@ class SubscribersManager(HttpRequester):
         if page is None:
             # in this case we have to return all subscribers from the database
             # novu api have a limit of 10, so we will fetch 10 by 10 until we get all subscribers
-            page = 0
-            # fetching page 0
-            response = self.send_request(
-                operation="GET",
-                endpoint=f"/v1/subscribers?page={page}",
-            )
-            json_response = super().handle_response(response, "Can't retrieve subscribers !").json()
-            subscribers = cast(
-                List[subscriberType],
-                [
-                    {value: subscriber[key] for key, value in subscriber_mirror.items()}
-                    for subscriber in json_response["data"]
-                ],
-            )
+            page = 1
+            subscriber_page = self.get_subscribers_based_on_page(page)
+            subscribers = subscriber_page["items"]
             # fetching from page 1 to last page
             for p in range(
-                1,
-                json_response["totalCount"] // json_response["pageSize"]
-                + ceil(
-                    json_response["totalCount"]
-                    % json_response["pageSize"]
-                    / json_response["pageSize"]
-                ),
+                2,
+                (subscriber_page["total"] // subscriber_page["size"])
+                + ceil(subscriber_page["total"] % subscriber_page["size"] / subscriber_page["size"])
+                + 1,
             ):
-                response = self.send_request(
-                    operation="GET",
-                    endpoint=f"/v1/subscribers?page={p}",
-                )
-                response = super().handle_response(response, "Can't retrieve subscribers !").json()
-                subscribers.extend(
-                    cast(
-                        List[subscriberType],
-                        [
-                            {value: subscriber[key] for key, value in subscriber_mirror.items()}
-                            for subscriber in response["data"]
-                        ],
-                    )
-                )
+                subscriber_page = self.get_subscribers_based_on_page(p)
+                subscribers += subscriber_page["items"]
             return subscribers
 
         # final case is when we want to fetch per page
@@ -112,38 +103,18 @@ class SubscribersManager(HttpRequester):
         if page <= 0:
             raise NotificationException("page must be superior than O")
         if page > 0:
-            response = self.send_request(
-                operation="GET",
-                endpoint=f"/v1/subscribers?page={page - 1}",
-            )
-            json_response = super().handle_response(response, "Can't retrieve subscribers !").json()
-            # return a special format of pagination
-            returned_response: subscriberPageType = {
-                "items": cast(
-                    List[subscriberType],
-                    [
-                        {value: subscriber[key] for key, value in subscriber_mirror.items()}
-                        for subscriber in json_response["data"]
-                    ],
-                ),
-                "page": json_response["page"] + 1,
-                "size": json_response["pageSize"],
-                "total": json_response["totalCount"],
-            }
-            return returned_response
+            return self.get_subscribers_based_on_page(page)
         raise NotificationException
 
     def create_subscriber(
         self,
-        subscriber_id: Union[str, UUID],
+        subscriber_id: str,
         email: str,
         first_name: str,
         last_name: str,
         phone: str,
     ) -> subscriberType:
         """Create a subscriber."""
-        if isinstance(subscriber_id, UUID):
-            subscriber_id = str(subscriber_id)
         body = {
             "subscriberId": subscriber_id,
             "email": email,
@@ -159,15 +130,14 @@ class SubscribersManager(HttpRequester):
         )
         return created_subscriber
 
-    def update_subscriber(self, subscriber_id: Union[str, UUID], **kwargs: Any) -> subscriberType:
+    def update_subscriber(self, subscriber_id: str, **kwargs: Any) -> subscriberType:
         """Update a subscriber, raise an exception if it doesn't exist."""
 
-        if isinstance(subscriber_id, UUID):
-            subscriber_id = str(subscriber_id)
-
-        assert all(
-            item in ["first_name", "last_name", "email", "phone"] for item in list(kwargs.keys())
-        )
+        if any(
+            item not in ["first_name", "last_name", "email", "phone"]
+            for item in list(kwargs.keys())
+        ):
+            raise NotificationException("field is not allowed !")
         body = {reversed_subscriber_mirror[key]: item for key, item in kwargs.items()}
         response = self.send_request(
             operation="PUT", endpoint=f"/v1/subscribers/{subscriber_id}", body=body
@@ -179,11 +149,8 @@ class SubscribersManager(HttpRequester):
         )
         return updated_subscriber
 
-    def delete_subscriber(self, subscriber_id: Union[str, UUID]) -> None:
+    def delete_subscriber(self, subscriber_id: str) -> None:
         """Delete a subscriber, raise an exception if it doesn't exist."""
-
-        if isinstance(subscriber_id, UUID):
-            subscriber_id = str(subscriber_id)
 
         response = self.send_request(
             operation="DELETE",

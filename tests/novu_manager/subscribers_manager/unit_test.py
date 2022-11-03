@@ -14,7 +14,7 @@ class TestSubscribersManager:
     @pytest.fixture
     def created_subscriber(self, novu):
         subscriber = novu.subscribers_manager.create_subscriber(
-            subscriber_id=uuid4(),
+            subscriber_id=str(uuid4()),
             first_name="first_name",
             last_name="last_name",
             email="email@myem.fr",
@@ -23,12 +23,15 @@ class TestSubscribersManager:
         yield subscriber
         novu.subscribers_manager.delete_subscriber(subscriber["subscriber_id"])
 
-    def test_subscriber_creation(self, created_subscriber):
-        assert created_subscriber["first_name"] == "first_name"
-        assert created_subscriber["last_name"] == "last_name"
-        assert created_subscriber["email"] == "email@myem.fr"
-        assert created_subscriber["phone"] == "0123456789"
-        assert created_subscriber["channels"] == []
+    def test_subscriber_creation(self, novu, created_subscriber):
+        subscriber = novu.subscribers_manager.get_subscriber(
+            subscriber_id=created_subscriber["subscriber_id"]
+        )
+        assert subscriber["first_name"] == "first_name"
+        assert subscriber["last_name"] == "last_name"
+        assert subscriber["email"] == "email@myem.fr"
+        assert subscriber["phone"] == "0123456789"
+        assert subscriber["channels"] == []
 
     def test_get_subscriber(self, novu, created_subscriber):
         subscriber = novu.subscribers_manager.get_subscriber(created_subscriber["subscriber_id"])
@@ -41,19 +44,21 @@ class TestSubscribersManager:
 
     def test_delete_subscriber(self, novu):
         subscriber = novu.subscribers_manager.create_subscriber(
-            subscriber_id=uuid4(),
+            subscriber_id=str(uuid4()),
             first_name="first_name",
             last_name="last_name",
             email="email@myem.fr",
             phone="0123456789",
         )
-        assert novu.subscribers_manager.get_subscriber(subscriber["subscriber_id"]) is not None
         novu.subscribers_manager.delete_subscriber(subscriber["subscriber_id"])
         assert novu.subscribers_manager.get_subscriber(subscriber["subscriber_id"]) is None
 
     def test_update_subscriber_one_field(self, novu, created_subscriber):
-        updated_subscriber = novu.subscribers_manager.update_subscriber(
+        novu.subscribers_manager.update_subscriber(
             subscriber_id=created_subscriber["subscriber_id"], first_name="updated first_name"
+        )
+        updated_subscriber = novu.subscribers_manager.get_subscriber(
+            created_subscriber["subscriber_id"]
         )
         assert updated_subscriber["subscriber_id"] == created_subscriber["subscriber_id"]
         assert updated_subscriber["first_name"] == "updated first_name"
@@ -63,12 +68,15 @@ class TestSubscribersManager:
         assert updated_subscriber["channels"] == []
 
     def test_update_all_fields_of_a_subscriber(self, novu, created_subscriber):
-        updated_subscriber = novu.subscribers_manager.update_subscriber(
+        novu.subscribers_manager.update_subscriber(
             subscriber_id=created_subscriber["subscriber_id"],
             first_name="updated first_name",
             last_name="updated last_name",
             email="updatedemail@myem.fr",
             phone="6545246454",
+        )
+        updated_subscriber = novu.subscribers_manager.get_subscriber(
+            created_subscriber["subscriber_id"]
         )
         assert updated_subscriber["subscriber_id"] == created_subscriber["subscriber_id"]
         assert updated_subscriber["first_name"] == "updated first_name"
@@ -163,6 +171,10 @@ class TestSubscribersManager:
                 email="email@myem.fr",
                 phone="0123456789",
             )
+
+    def test_update_subscriber_with_not_allowed_fields(self, novu):
+        with pytest.raises(NotificationException):
+            novu.subscribers_manager.update_subscriber(subscriber_id=uuid4(), address="address")
 
     def test_delete_subscriber_does_not_exists(self, novu):
         with pytest.raises(NotificationException):
