@@ -5,7 +5,7 @@ export INTEGRATION_TESTS_CONTAINERS_PREFIX=${2:-local}
 docker-compose -p $INTEGRATION_TESTS_CONTAINERS_PREFIX up -d
 sleep 10
 
-API_URL=http://$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${PREFIX}_api_1):3000
+API_URL=http://$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${INTEGRATION_TESTS_CONTAINERS_PREFIX}_api_1):3000
 export API_URL=$API_URL
 API_KEY=$(python3 get_api_key.py)
 
