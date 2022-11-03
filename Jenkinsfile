@@ -47,9 +47,9 @@ pipeline{
             steps {
                script {
                     docker.withRegistry( '', registryCredential ) {
-                        sh "cd tests/test_environment &&
-                        docker-compose -p ${INTEGRATION_TESTS_CONTAINERS_PREFIX} up -d &&
-                        sleep 10 && export API_URL=http://api:3000 && export API_KEY=`python3 get_api_key.py` && cd ../.. &&
+                        sh "cd tests/test_environment && \n
+                        docker-compose -p ${INTEGRATION_TESTS_CONTAINERS_PREFIX} up -d && \n
+                        sleep 10 && export API_URL=http://api:3000 && export API_KEY=`python3 get_api_key.py` && cd ../.. && \n
                         pipenv run coverage run --source=notification_lib -m pytest -v -s --junit-xml=reports/report.xml tests && pipenv run coverage xml"
                     }
                }
