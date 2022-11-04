@@ -13,23 +13,31 @@ class TestHttpRequester:
 
     @pytest.fixture
     def mock_requests(self, monkeypatch):
+        monkeypatch.setattr(HttpRequester, "get_jwt_bearer_token", lambda: "")
         monkeypatch.setattr(http_requests, "requests", Mock())
 
     def test_send_get_request(self, mock_requests):
         HttpRequester.send_request(operation="GET", endpoint="/endpoint")
         assert http_requests.requests.get.call_count == 1
         assert http_requests.requests.get.call_args[0][0] == "http://api_url/endpoint"
-        assert http_requests.requests.get.call_args[1] == {
-            "headers": {"Authorization": f"ApiKey {HttpRequester.api_key}"}
-        }
+        # assert http_requests.requests.get.call_args[1] == {
+        #     "headers": {"Authorization": f"ApiKey {HttpRequester.api_key}"}
+        # }
+        # TODO:  to replace one we migrate to api key
+        assert http_requests.requests.get.call_args[1] == {"headers": {"Authorization": "Bearer "}}
 
     def test_send_post_request(self, mock_requests):
         HttpRequester.send_request(operation="POST", endpoint="/endpoint", body={"hello": "world"})
         assert http_requests.requests.post.call_count == 1
         assert http_requests.requests.post.call_args[0][0] == "http://api_url/endpoint"
+        # assert http_requests.requests.post.call_args[1] == {
+        #     "data": '{"hello": "world"}',
+        #     "headers": {"Authorization": "ApiKey api_key", "Content-Type": "application/json"},
+        # }
+        # TODO:  to replace one we migrate to api key
         assert http_requests.requests.post.call_args[1] == {
             "data": '{"hello": "world"}',
-            "headers": {"Authorization": "ApiKey api_key", "Content-Type": "application/json"},
+            "headers": {"Authorization": "Bearer ", "Content-Type": "application/json"},
         }
 
     def test_handle_200_response(self):
