@@ -1,5 +1,5 @@
 """Notification templates manager file."""
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from notification_lib.exceptions import NotificationException
 from notification_lib.http_requests import HttpRequester
@@ -16,7 +16,10 @@ class NotificationTemplatesManager(HttpRequester):
 
     @classmethod
     def create_update_notification_template(
-        cls, template_name: str, template: Dict[str, Any], notification_group_name: str = "General"
+        cls,
+        template_name: str,
+        steps: List[Dict[str, Any]],
+        notification_group_name: str = "General",
     ) -> None:
         """Create notification template."""
         notification_group_id = NotificationGroupsManager.get_notification_group_id_by_name(
@@ -26,28 +29,31 @@ class NotificationTemplatesManager(HttpRequester):
             raise NotificationException("Can't create notification template !")
         old_template = cls.get_template_by_name(template_name=template_name)
         if not old_template:
-            cls.send_request(
+            response = cls.send_request(
                 operation="POST",
                 endpoint="/v1/notification-templates",
                 body={
                     "notificationGroupId": notification_group_id,
                     "name": template_name,
-                    "steps": [template, None, True],
+                    "steps": steps,
                     "active": True,
                     "draft": False,
                 },
             )
+            super().handle_response(response, "Can't create notification template !")
         else:
-            cls.send_request(
+            response = cls.send_request(
                 operation="PUT",
                 endpoint=f"/v1/notification-templates/{old_template['id']}",
                 body={
                     "notificationGroupId": notification_group_id,
                     "name": template_name,
-                    "steps": [template, None, True],
+                    "identifier": template_name,
+                    "steps": steps,
                     "active": True,
                 },
             )
+            super().handle_response(response, "Can't update notification template !")
 
     @classmethod
     def get_template_by_name(cls, template_name: str) -> Optional[notificationTemplateType]:
@@ -61,9 +67,18 @@ class NotificationTemplatesManager(HttpRequester):
         )
         for notification_template in json_response["data"]:
             if notification_template["name"] == template_name:
+                response = cls.send_request(
+                    operation="GET",
+                    endpoint=f"/v1/notification-templates/{notification_template['id']}",
+                )
+                json_response = (
+                    super()
+                    .handle_response(response, "Can't retrieve notification template !")
+                    .json()
+                )
                 return {
-                    "id": notification_template["id"],
-                    "template_name": notification_template["name"],
-                    "template": notification_template["steps"][3],
+                    "id": json_response["data"]["id"],
+                    "template_name": json_response["data"]["name"],
+                    "steps": json_response["data"]["steps"],
                 }
         return None

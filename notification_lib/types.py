@@ -23,5 +23,5 @@ subscriberPageType = TypedDict(
 )
 
 notificationTemplateType = TypedDict(
-    "notificationTemplateType", {"id": str, "template_name": str, "template": Dict[str, Any]}
+    "notificationTemplateType", {"id": str, "template_name": str, "steps": List[Dict[str, Any]]}
 )

@@ -6,6 +6,8 @@ pipeline{
            GITHUB_CREDENTIALS = credentials('github myem developer')
            INTEGRATION_TESTS_CONTAINERS_PREFIX = "${Math.abs(new Random().nextInt(1000+1))}"
            INTEGRATION_TESTS_NETWORK = "traefik_default"
+           ADMIN_EMAIL = "myem+dev@myem.fr"
+           ADMIN_PASSWORD = "admin1234"
     }
 
     stages{

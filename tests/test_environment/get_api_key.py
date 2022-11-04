@@ -1,7 +1,5 @@
 import json
 import os
-import string
-from random import choice
 
 import requests
 
@@ -9,7 +7,8 @@ import requests
 def main():
     """this function creates a user and an org and return the api key."""
     api_url = os.environ["API_URL"]
-    random_password = "".join(choice(string.ascii_letters + string.digits) for _ in range(8))
+    email = os.environ["ADMIN_EMAIL"]
+    password = os.environ["ADMIN_PASSWORD"]
 
     register_response = requests.post(
         f"{api_url}/v1/auth/register",
@@ -18,8 +17,8 @@ def main():
             {
                 "firstName": "myem",
                 "lastName": "dev",
-                "email": "myem+dev@myem.fr",
-                "password": random_password,
+                "email": email,
+                "password": password,
             }
         ),
     )
@@ -35,7 +34,7 @@ def main():
     login_response = requests.post(
         f"{api_url}/v1/auth/login",
         headers={"Content-Type": "application/json"},
-        data=json.dumps({"email": "myem+dev@myem.fr", "password": random_password}),
+        data=json.dumps({"email": email, "password": password}),
     )
 
     access_token = login_response.json()["data"]["token"]
