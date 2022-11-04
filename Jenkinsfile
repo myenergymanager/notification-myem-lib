@@ -43,6 +43,8 @@ pipeline{
         stage('Launch-novu && Unit-test') {
             environment {
                 registryCredential = 'dockerhub'
+                API_URL=""
+                API_KEY=""
             }
             steps {
                script {
