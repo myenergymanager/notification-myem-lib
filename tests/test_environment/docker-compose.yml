@@ -15,7 +15,7 @@ services:
       - mongodb:/data/db
     restart: unless-stopped
   api:
-    image: "ghcr.io/novuhq/novu/api:0.8.0"
+    image: "ghcr.io/novuhq/novu/api:dev"
     depends_on:
       - mongodb
       - redis
