@@ -11,9 +11,10 @@ class NotificationGroupsManager(HttpRequester):
     This Manager helps us create and get notification groups.
     """
 
-    def get_notification_group_id_by_name(self, name: str) -> Optional[str]:
+    @classmethod
+    def get_notification_group_id_by_name(cls, name: str) -> Optional[str]:
         """Get notification group id by name."""
-        response = self.send_request(
+        response = cls.send_request(
             operation="GET",
             endpoint="/v1/notification-groups",
         )
@@ -23,9 +24,10 @@ class NotificationGroupsManager(HttpRequester):
                 return notification_group["_id"]
         return None
 
-    def create_notification_group(self, name: str) -> None:
+    @classmethod
+    def create_notification_group(cls, name: str) -> None:
         """Create a notification group."""
-        response = self.send_request(
+        response = cls.send_request(
             operation="POST", endpoint="/v1/notification-groups", body={"name": name}
         )
         super().handle_response(response, "Can't create notification group !").json()
