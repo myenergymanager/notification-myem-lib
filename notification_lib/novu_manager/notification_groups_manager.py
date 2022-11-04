@@ -17,7 +17,7 @@ class NotificationGroupsManager(HttpRequester):
             operation="GET",
             endpoint="/v1/notification-groups",
         )
-        json_response = super().handle_response(response, "Can't retrieve subscriber !").json()
+        json_response = super().handle_response(response, "Can't get notifications groups !").json()
         for notification_group in json_response["data"]:
             if notification_group["name"] == name:
                 return notification_group["_id"]
