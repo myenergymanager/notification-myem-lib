@@ -15,7 +15,7 @@ services:
       - mongodb:/data/db
     restart: unless-stopped
   api:
-    image: "ghcr.io/novuhq/novu/api:latest"
+    image: "ghcr.io/novuhq/novu/api:dev"
     depends_on:
       - mongodb
       - redis
@@ -24,7 +24,7 @@ services:
       DISABLE_USER_REGISTRATION: "false"
       PORT: "3000"
       MONGO_URL: mongodb://mongodb:27017/novu-db
-      REDIS_HOST: ${PREFIX}_redis_1
+      REDIS_HOST: ${INTEGRATION_TESTS_CONTAINERS_PREFIX}_redis_1
       REDIS_PORT: "6379"
       REDIS_DB_INDEX: 2
       JWT_SECRET: ${JWT_SECRET}
@@ -32,7 +32,7 @@ services:
 
 volumes:
   mongodb:
-    name: ${PREFIX}_mongodb
+    name: ${INTEGRATION_TESTS_CONTAINERS_PREFIX}_mongodb
 
 networks:
   default:
