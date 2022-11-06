@@ -18,7 +18,7 @@ class NotificationGroupsManager(HttpRequester):
             operation="GET",
             endpoint="/v1/notification-groups",
         )
-        json_response = super().handle_response(response, "Can't get notifications groups !").json()
+        json_response = cls.handle_response(response, "Can't get notifications groups !").json()
         for notification_group in json_response["data"]:
             if notification_group["name"] == name:
                 return notification_group["_id"]
@@ -30,4 +30,4 @@ class NotificationGroupsManager(HttpRequester):
         response = cls.send_request(
             operation="POST", endpoint="/v1/notification-groups", body={"name": name}
         )
-        super().handle_response(response, "Can't create notification group !").json()
+        cls.handle_response(response, "Can't create notification group !").json()

@@ -1,32 +1,7 @@
-import pytest
 from notification_lib.http_requests import HttpRequester
 
 
 class TestNotificationTemplatesManager:
-    @pytest.fixture(scope="session")
-    def created_notification_template(self, novu):
-        novu.notification_templates_manager.create_update_notification_template(
-            template_name="template name",
-            steps=[
-                {
-                    "template": {
-                        "content": "content",
-                        "subject": "subject",
-                        "type": "in_app",
-                    },
-                    "active": True,
-                }
-            ],
-        )
-        template = novu.notification_templates_manager.get_template_by_name(
-            template_name="template name"
-        )
-        yield
-        HttpRequester.send_request(
-            operation="DELETE",
-            endpoint=f"/v1/notification-templates/{template['id']}",
-        )
-
     def test_get_non_existent_template_id_by_name(self, novu):
         assert (
             novu.notification_templates_manager.get_template_by_name(template_name="999999") is None
@@ -36,6 +11,7 @@ class TestNotificationTemplatesManager:
         template = novu.notification_templates_manager.get_template_by_name(
             template_name="template name"
         )
+        assert template["trigger_identifier"] == "template-name"
         response = HttpRequester.send_request(
             operation="GET",
             endpoint=f"/v1/notification-templates/{template['id']}",
