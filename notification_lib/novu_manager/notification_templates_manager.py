@@ -67,18 +67,8 @@ class NotificationTemplatesManager(HttpRequester):
         )
         for notification_template in json_response["data"]:
             if notification_template["name"] == template_name:
-                response = cls.send_request(
-                    operation="GET",
-                    endpoint=f"/v1/notification-templates/{notification_template['id']}",
-                )
-                json_response = (
-                    super()
-                    .handle_response(response, "Can't retrieve notification template !")
-                    .json()
-                )
                 return {
-                    "id": json_response["data"]["id"],
-                    "template_name": json_response["data"]["name"],
-                    "steps": json_response["data"]["steps"],
+                    "id": notification_template["id"],
+                    "template_name": notification_template["name"],
                 }
         return None

@@ -36,12 +36,16 @@ class TestNotificationTemplatesManager:
         template = novu.notification_templates_manager.get_template_by_name(
             template_name="template name"
         )
-        assert isinstance(template["id"], str)
-        assert template["template_name"] == "template name"
-        assert len(template["steps"]) == 1
-        assert template["steps"][0]["template"]["content"] == "content"
-        assert template["steps"][0]["template"]["subject"] == "subject"
-        assert template["steps"][0]["template"]["type"] == "in_app"
+        response = HttpRequester.send_request(
+            operation="GET",
+            endpoint=f"/v1/notification-templates/{template['id']}",
+        ).json()["data"]
+        assert isinstance(response["id"], str)
+        assert response["name"] == "template name"
+        assert len(response["steps"]) == 1
+        assert response["steps"][0]["template"]["content"] == "content"
+        assert response["steps"][0]["template"]["subject"] == "subject"
+        assert response["steps"][0]["template"]["type"] == "in_app"
 
     def test_update_notif_template(self, novu):
         novu.notification_templates_manager.create_update_notification_template(
@@ -60,9 +64,13 @@ class TestNotificationTemplatesManager:
         template = novu.notification_templates_manager.get_template_by_name(
             template_name="template name"
         )
-        assert isinstance(template["id"], str)
-        assert template["template_name"] == "template name"
-        assert len(template["steps"]) == 1
-        assert template["steps"][0]["template"]["content"] == "updated_content"
-        assert template["steps"][0]["template"]["subject"] == "updated_subject"
-        assert template["steps"][0]["template"]["type"] == "in_app"
+        response = HttpRequester.send_request(
+            operation="GET",
+            endpoint=f"/v1/notification-templates/{template['id']}",
+        ).json()["data"]
+        assert isinstance(response["id"], str)
+        assert response["name"] == "template name"
+        assert len(response["steps"]) == 1
+        assert response["steps"][0]["template"]["content"] == "updated_content"
+        assert response["steps"][0]["template"]["subject"] == "updated_subject"
+        assert response["steps"][0]["template"]["type"] == "in_app"

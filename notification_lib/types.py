@@ -1,5 +1,5 @@
 """Novu types."""
-from typing import Any, Dict, List
+from typing import List
 
 from typing_extensions import TypedDict
 
@@ -22,6 +22,4 @@ subscriberPageType = TypedDict(
     "subscriberPageType", {"page": int, "size": int, "total": int, "items": List[subscriberType]}
 )
 
-notificationTemplateType = TypedDict(
-    "notificationTemplateType", {"id": str, "template_name": str, "steps": List[Dict[str, Any]]}
-)
+notificationTemplateType = TypedDict("notificationTemplateType", {"id": str, "template_name": str})
