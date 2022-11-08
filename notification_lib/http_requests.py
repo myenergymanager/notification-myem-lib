@@ -51,7 +51,10 @@ class HttpRequester:
             f"{cls.api_url}/v1/auth/login",
             headers={"Content-Type": "application/json"},
             data=json.dumps(
-                {"email": os.environ["ADMIN_EMAIL"], "password": os.environ["ADMIN_PASSWORD"]}
+                {
+                    "email": os.environ["NOVU_ADMIN_EMAIL"],
+                    "password": os.environ["NOVU_ADMIN_PASSWORD"],
+                }
             ),
         )
         return login_response.json()["data"]["token"]

@@ -7,8 +7,8 @@ import requests
 def main():
     """this function creates a user and an org and return the api key."""
     api_url = os.environ["API_URL"]
-    email = os.environ["ADMIN_EMAIL"]
-    password = os.environ["ADMIN_PASSWORD"]
+    email = os.environ["NOVU_ADMIN_EMAIL"]
+    password = os.environ["NOVU_ADMIN_PASSWORD"]
 
     register_response = requests.post(
         f"{api_url}/v1/auth/register",
