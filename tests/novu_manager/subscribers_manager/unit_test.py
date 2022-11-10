@@ -5,18 +5,6 @@ from notification_lib.exceptions import NotificationException
 
 
 class TestSubscribersManager:
-    @pytest.fixture
-    def created_subscriber(self, novu):
-        subscriber = novu.subscribers_manager.create_subscriber(
-            subscriber_id=str(uuid4()),
-            first_name="first_name",
-            last_name="last_name",
-            email="email@myem.fr",
-            phone="0123456789",
-        )
-        yield subscriber
-        novu.subscribers_manager.delete_subscriber(subscriber["subscriber_id"])
-
     def test_subscriber_creation(self, novu, created_subscriber):
         subscriber = novu.subscribers_manager.get_subscriber(
             subscriber_id=created_subscriber["subscriber_id"]

@@ -37,7 +37,7 @@ class SubscribersManager(HttpRequester):
             operation="GET",
             endpoint=f"/v1/subscribers/{subscriber_id}",
         )
-        json_response = super().handle_response(response, "Can't retrieve subscriber !").json()
+        json_response = cls.handle_response(response, "Can't retrieve subscriber !").json()
         if json_response["data"] is None:
             return None
         subscriber = cast(
@@ -53,7 +53,7 @@ class SubscribersManager(HttpRequester):
             operation="GET",
             endpoint=f"/v1/subscribers?page={page - 1}",
         )
-        json_response = super().handle_response(response, "Can't retrieve subscribers !").json()
+        json_response = cls.handle_response(response, "Can't retrieve subscribers !").json()
         return {
             "items": cast(
                 List[subscriberType],
@@ -127,7 +127,7 @@ class SubscribersManager(HttpRequester):
             "phone": phone,
         }
         response = cls.send_request(operation="POST", endpoint="/v1/subscribers", body=body)
-        json_response = super().handle_response(response, "Can't create subscriber !").json()
+        json_response = cls.handle_response(response, "Can't create subscriber !").json()
         created_subscriber = cast(
             subscriberType,
             {value: json_response["data"][key] for key, value in subscriber_mirror.items()},
@@ -147,7 +147,7 @@ class SubscribersManager(HttpRequester):
         response = cls.send_request(
             operation="PUT", endpoint=f"/v1/subscribers/{subscriber_id}", body=body
         )
-        json_response = super().handle_response(response, "Can't update subscriber !").json()
+        json_response = cls.handle_response(response, "Can't update subscriber !").json()
         updated_subscriber = cast(
             subscriberType,
             {value: json_response["data"][key] for key, value in subscriber_mirror.items()},
@@ -163,4 +163,4 @@ class SubscribersManager(HttpRequester):
             endpoint=f"/v1/subscribers/{subscriber_id}",
         )
 
-        super().handle_response(response, "Can't delete subscriber !").json()
+        cls.handle_response(response, "Can't delete subscriber !").json()

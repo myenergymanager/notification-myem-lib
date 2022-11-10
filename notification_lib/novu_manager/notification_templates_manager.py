@@ -40,7 +40,7 @@ class NotificationTemplatesManager(HttpRequester):
                     "draft": False,
                 },
             )
-            super().handle_response(response, "Can't create notification template !")
+            cls.handle_response(response, "Can't create notification template !")
         else:
             response = cls.send_request(
                 operation="PUT",
@@ -53,7 +53,7 @@ class NotificationTemplatesManager(HttpRequester):
                     "active": True,
                 },
             )
-            super().handle_response(response, "Can't update notification template !")
+            cls.handle_response(response, "Can't update notification template !")
 
     @classmethod
     def get_template_by_name(cls, template_name: str) -> Optional[notificationTemplateType]:
@@ -62,13 +62,16 @@ class NotificationTemplatesManager(HttpRequester):
             operation="GET",
             endpoint="/v1/notification-templates",
         )
-        json_response = (
-            super().handle_response(response, "Can't retrieve notification templates !").json()
-        )
+        json_response = cls.handle_response(
+            response, "Can't retrieve notification templates !"
+        ).json()
         for notification_template in json_response["data"]:
             if notification_template["name"] == template_name:
                 return {
                     "id": notification_template["id"],
                     "template_name": notification_template["name"],
+                    # not sure why there are many trrigers ids in one notification
+                    # template, for now we take the first
+                    "trigger_identifier": notification_template["triggers"][0]["identifier"],
                 }
         return None
