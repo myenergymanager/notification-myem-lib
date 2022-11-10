@@ -6,8 +6,8 @@ pipeline{
            GITHUB_CREDENTIALS = credentials('github myem developer')
            INTEGRATION_TESTS_CONTAINERS_PREFIX = "${Math.abs(new Random().nextInt(1000+1))}"
            INTEGRATION_TESTS_NETWORK = "traefik_default"
-           ADMIN_EMAIL = "myem+dev@myem.fr"
-           ADMIN_PASSWORD = "admin1234"
+           NOVU_ADMIN_EMAIL = "myem+dev@myem.fr"
+           NOVU_ADMIN_PASSWORD = "admin1234"
     }
 
     stages{
@@ -53,7 +53,7 @@ pipeline{
                     docker.withRegistry( '', registryCredential ) {
                         sh ("""cd tests/test_environment && \
                         docker-compose -p ${INTEGRATION_TESTS_CONTAINERS_PREFIX} up -d && \
-                        wait-for-it -p 3000 -h api -t 60 && export API_URL=http://api:3000 && export API_KEY=`python3 get_api_key.py` && cd ../.. && \
+                        wait-for-it -p 3000 -h api -t 120 && export API_URL=http://api:3000 && export API_KEY=`python3 get_api_key.py` && cd ../.. && \
                         pipenv run coverage run --source=notification_lib -m pytest -v -s --junit-xml=reports/report.xml tests && pipenv run coverage xml""")
                     }
                }
