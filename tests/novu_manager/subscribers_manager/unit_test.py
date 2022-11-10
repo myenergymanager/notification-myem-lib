@@ -1,16 +1,10 @@
-import os
 from uuid import uuid4
 
 import pytest
 from notification_lib.exceptions import NotificationException
-from notification_lib.novu import Novu
 
 
 class TestSubscribersManager:
-    @pytest.fixture
-    def novu(self):
-        yield Novu(os.environ["API_KEY"], os.environ["API_URL"])
-
     @pytest.fixture
     def created_subscriber(self, novu):
         subscriber = novu.subscribers_manager.create_subscriber(

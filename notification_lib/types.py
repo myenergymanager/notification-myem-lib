@@ -21,3 +21,5 @@ subscriberType = TypedDict(
 subscriberPageType = TypedDict(
     "subscriberPageType", {"page": int, "size": int, "total": int, "items": List[subscriberType]}
 )
+
+notificationTemplateType = TypedDict("notificationTemplateType", {"id": str, "template_name": str})

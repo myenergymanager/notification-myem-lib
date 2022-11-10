@@ -17,8 +17,8 @@ class Novu:
         HttpRequester.api_key = api_key
         HttpRequester.api_url = api_url
 
-    events_manager = EventsManager()
-    subscribers_manager = SubscribersManager()
-    notification_templates_manager = NotificationTemplatesManager()
-    notification_groups_manager = NotificationGroupsManager()
-    integrations_manager = IntegrationsManager()
+    events_manager = EventsManager
+    subscribers_manager = SubscribersManager
+    notification_templates_manager = NotificationTemplatesManager
+    notification_groups_manager = NotificationGroupsManager
+    integrations_manager = IntegrationsManager

@@ -1,4 +1,5 @@
 #!/bin/bash
+export $(cat tests/.test.env | xargs)
 cd tests/test_environment
 export INTEGRATION_TESTS_NETWORK=${1:-docker_default}
 export INTEGRATION_TESTS_CONTAINERS_PREFIX=${2:-local}

@@ -1,6 +1,7 @@
 """Http requests file."""
 import json
 import logging
+import os
 from typing import Any, Dict, Optional
 
 import requests
@@ -22,7 +23,11 @@ class HttpRequester:
         body: Optional[Dict[str, Any]] = None,
     ) -> requests.Response:
         """Send a request based on the operation and params."""
-        params: Dict[str, Any] = {"headers": {"Authorization": f"ApiKey {cls.api_key}"}}
+        # TODO : to remove the bearer token once the bug is resolved in the novu platform
+        #  and replace it with the api key {"Authorization": f"ApiKey {cls.api_key}}"}
+        params: Dict[str, Any] = {
+            "headers": {"Authorization": f"Bearer {cls.get_jwt_bearer_token()}"}
+        }
         if body:
             params.update({"data": json.dumps(body)})
         if operation in ["POST", "PATCH", "PUT"]:
@@ -37,3 +42,16 @@ class HttpRequester:
         logging.error(f"status code: {response.status_code}")
         logging.error(f"response : {response.json()}")
         raise NotificationException(exception_msg)
+
+    @classmethod
+    def get_jwt_bearer_token(cls) -> str:
+        """Get jwt bearer token."""
+        # TODO : to remove this function once the bug is resolved in the novu plateforme
+        login_response = requests.post(
+            f"{cls.api_url}/v1/auth/login",
+            headers={"Content-Type": "application/json"},
+            data=json.dumps(
+                {"email": os.environ["ADMIN_EMAIL"], "password": os.environ["ADMIN_PASSWORD"]}
+            ),
+        )
+        return login_response.json()["data"]["token"]
