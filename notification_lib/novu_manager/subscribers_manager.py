@@ -182,14 +182,18 @@ class SubscribersManager(HttpRequester):
     @classmethod
     def add_push_notification_device_token(cls, subscriber_id: str, device_token: str) -> None:
         """Add a new device token to the push notif tokens for a subscriber."""
+        # get subscriber
         subscriber = cls.get_subscriber(subscriber_id)
         if not subscriber:
+            # if it does not exist we raise an exception
             raise NotificationException("subscriber doesn't exists !")
         subscriber_fcm_credentials: Optional[SubscriberCredentials] = None
         for channel in subscriber["channels"]:
             if channel["providerId"] == "fcm":
+                # if fcm credentials exists we add token to it
                 subscriber_fcm_credentials = channel["credentials"]
         if not subscriber_fcm_credentials:
+            # if fcm credentials doesn't exist we initialize it with the new token
             subscriber_fcm_credentials = {"deviceTokens": [device_token]}
         else:
             subscriber_fcm_credentials["deviceTokens"].append(device_token)
