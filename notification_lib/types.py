@@ -1,7 +1,23 @@
 """Novu types."""
-from typing import List
+from typing import List, Optional
 
 from typing_extensions import TypedDict
+
+
+class SubscriberCredentials(TypedDict, total=False):
+    """Subscriber credentials notiffs type."""
+
+    webhookUrl: Optional[str]
+    deviceTokens: List[str]
+
+
+channelType = TypedDict(
+    "channelType",
+    {
+        "providerId": str,
+        "credentials": SubscriberCredentials,
+    },
+)
 
 
 subscriberType = TypedDict(
@@ -14,7 +30,7 @@ subscriberType = TypedDict(
         "phone": str,
         "created_at": str,
         "updated_at": str,
-        "channels": List[str],
+        "channels": List[channelType],
     },
 )
 

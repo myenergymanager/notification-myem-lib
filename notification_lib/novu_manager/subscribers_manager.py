@@ -4,7 +4,7 @@ from typing import Any, cast, List, Optional, Union
 
 from notification_lib.exceptions import NotificationException
 from notification_lib.http_requests import HttpRequester
-from notification_lib.types import subscriberPageType, subscriberType
+from notification_lib.types import SubscriberCredentials, subscriberPageType, subscriberType
 
 
 subscriber_mirror = {
@@ -164,3 +164,37 @@ class SubscribersManager(HttpRequester):
         )
 
         cls.handle_response(response, "Can't delete subscriber !").json()
+
+    @classmethod
+    def update_subscriber_credentials(
+        cls, subscriber_id: str, provider: str, credentials: SubscriberCredentials
+    ) -> None:
+        """Update subscriber credentials."""
+
+        response = cls.send_request(
+            operation="PUT",
+            endpoint=f"/v1/subscribers/{subscriber_id}/credentials",
+            body={"providerId": provider, "credentials": credentials},
+        )
+
+        cls.handle_response(response, "Can't set subscriber credentials !").json()
+
+    @classmethod
+    def add_push_notification_device_token(cls, subscriber_id: str, device_token: str) -> None:
+        """Add a new device token to the push notif tokens for a subscriber."""
+        # get subscriber
+        subscriber = cls.get_subscriber(subscriber_id)
+        if not subscriber:
+            # if it does not exist we raise an exception
+            raise NotificationException("subscriber doesn't exists !")
+        subscriber_fcm_credentials: Optional[SubscriberCredentials] = None
+        for channel in subscriber["channels"]:
+            if channel["providerId"] == "fcm":
+                # if fcm credentials exists we add token to it
+                subscriber_fcm_credentials = channel["credentials"]
+        if not subscriber_fcm_credentials:
+            # if fcm credentials doesn't exist we initialize it with the new token
+            subscriber_fcm_credentials = {"deviceTokens": [device_token]}
+        else:
+            subscriber_fcm_credentials["deviceTokens"].append(device_token)
+        cls.update_subscriber_credentials(subscriber_id, "fcm", subscriber_fcm_credentials)

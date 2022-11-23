@@ -1,21 +1,7 @@
-import pytest
 from notification_lib.http_requests import HttpRequester
 
 
 class TestIntegrationsManager:
-    @pytest.fixture
-    def created_integration(self, novu):
-        novu.integrations_manager.create_update_integration(
-            channel="channel", provider="fcm", credentials={"serviceAccount": "testing"}
-        )
-        integration_id = novu.integrations_manager.get_integration_id_by_provider_and_channel(
-            provider="fcm", channel="channel"
-        )
-        yield
-        HttpRequester.send_request(
-            operation="DELETE", endpoint=f"/v1/integrations/{integration_id}"
-        )
-
     def test_get_non_existent_integration(self, novu):
         assert (
             novu.integrations_manager.get_integration_id_by_provider_and_channel(
