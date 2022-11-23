@@ -161,3 +161,49 @@ class TestSubscribersManager:
     def test_delete_subscriber_does_not_exists(self, novu):
         with pytest.raises(NotificationException):
             novu.subscribers_manager.delete_subscriber(subscriber_id=uuid4())
+
+    def test_update_subscriber_credentials(self, novu, created_subscriber, created_integration):
+
+        novu.subscribers_manager.update_subscriber_credentials(
+            subscriber_id=created_subscriber["subscriber_id"],
+            provider="fcm",
+            credentials={"deviceTokens": ["dkfjkdjfkdjf"]},
+        )
+        subscribers = novu.subscribers_manager.get_subscribers(page=1)
+        assert subscribers["items"][0]["channels"][0]["credentials"] == {
+            "deviceTokens": ["dkfjkdjfkdjf"]
+        }
+        assert subscribers["items"][0]["channels"][0]["providerId"] == "fcm"
+
+    def test_update_subscriber_credentials_when_subscriber_doesent_exists(
+        self, novu, created_integration
+    ):
+        with pytest.raises(NotificationException):
+            novu.subscribers_manager.update_subscriber_credentials(
+                subscriber_id=str(uuid4()),
+                provider="fcm",
+                credentials={"deviceTokens": ["dkfjkdjfkdjf"]},
+            )
+
+    def test_update_subscriber_credentials_when_integration_is_not_created(
+        self, novu, created_subscriber
+    ):
+        with pytest.raises(NotificationException):
+            novu.subscribers_manager.update_subscriber_credentials(
+                subscriber_id=created_subscriber["subscriber_id"],
+                provider="fcm",
+                credentials={"deviceTokens": ["dkfjkdjfkdjf"]},
+            )
+
+    def test_add_device_token(self, novu, created_subscriber, created_integration):
+        novu.subscribers_manager.add_push_notification_device_token(
+            subscriber_id=created_subscriber["subscriber_id"], device_token="token_1"
+        )
+        novu.subscribers_manager.add_push_notification_device_token(
+            subscriber_id=created_subscriber["subscriber_id"], device_token="token_2"
+        )
+        subscribers = novu.subscribers_manager.get_subscribers(page=1)
+        assert subscribers["items"][0]["channels"][0]["credentials"] == {
+            "deviceTokens": ["token_1", "token_2"]
+        }
+        assert subscribers["items"][0]["channels"][0]["providerId"] == "fcm"

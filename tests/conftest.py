@@ -47,3 +47,15 @@ def created_subscriber(novu):
     )
     yield subscriber
     novu.subscribers_manager.delete_subscriber(subscriber["subscriber_id"])
+
+
+@pytest.fixture
+def created_integration(novu):
+    novu.integrations_manager.create_update_integration(
+        channel="channel", provider="fcm", credentials={"serviceAccount": "testing"}
+    )
+    integration_id = novu.integrations_manager.get_integration_id_by_provider_and_channel(
+        provider="fcm", channel="channel"
+    )
+    yield
+    HttpRequester.send_request(operation="DELETE", endpoint=f"/v1/integrations/{integration_id}")
