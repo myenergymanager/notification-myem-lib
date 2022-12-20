@@ -1,6 +1,6 @@
 """Subscribers manager file."""
 from math import ceil
-from typing import Any, cast, List, Optional, Union
+from typing import Any, cast
 
 from notification_lib.exceptions import NotificationException
 from notification_lib.http_requests import HttpRequester
@@ -29,9 +29,9 @@ class SubscribersManager(HttpRequester):
     """
 
     # PS: we are using casts to keep our typing clean, because list comprehensions
-    # and dict comprehensions gives back a type of Dict[str, Any]
+    # and dict comprehensions gives back a type of dict[str, Any]
     @classmethod
-    def get_subscriber(cls, subscriber_id: str) -> Optional[subscriberType]:
+    def get_subscriber(cls, subscriber_id: str) -> subscriberType | None:
         """Get subscriber by id."""
         response = cls.send_request(
             operation="GET",
@@ -56,7 +56,7 @@ class SubscribersManager(HttpRequester):
         json_response = cls.handle_response(response, "Can't retrieve subscribers !").json()
         return {
             "items": cast(
-                List[subscriberType],
+                list[subscriberType],
                 [
                     {value: subscriber[key] for key, value in subscriber_mirror.items()}
                     for subscriber in json_response["data"]
@@ -69,17 +69,16 @@ class SubscribersManager(HttpRequester):
 
     @classmethod
     def get_subscribers(
-        cls, page: Optional[int] = None, subscribers_ids: Optional[List[str]] = None
-    ) -> Union[List[subscriberType], subscriberPageType]:
+        cls, page: int | None = None, subscribers_ids: list[str] | None = None
+    ) -> list[subscriberType] | subscriberPageType:
         """Get subscribers, apply pagination if required."""
 
         if subscribers_ids:
             # in case of specific subscribers ids where giving to retrieve
             # we use the function get_subscriber to fetch them one by one
-            subscribers_by_ids: List[subscriberType] = []
+            subscribers_by_ids: list[subscriberType] = []
             for subscriber_id in subscribers_ids:
-                subscriber = cls.get_subscriber(subscriber_id)
-                if subscriber:
+                if subscriber := cls.get_subscriber(subscriber_id):
                     subscribers_by_ids.append(subscriber)
             return subscribers_by_ids
 
@@ -183,11 +182,10 @@ class SubscribersManager(HttpRequester):
     def add_push_notification_device_token(cls, subscriber_id: str, device_token: str) -> None:
         """Add a new device token to the push notif tokens for a subscriber."""
         # get subscriber
-        subscriber = cls.get_subscriber(subscriber_id)
-        if not subscriber:
+        if not (subscriber := cls.get_subscriber(subscriber_id)):
             # if it does not exist we raise an exception
             raise NotificationException("subscriber doesn't exists !")
-        subscriber_fcm_credentials: Optional[SubscriberCredentials] = None
+        subscriber_fcm_credentials: SubscriberCredentials | None = None
         for channel in subscriber["channels"]:
             if channel["providerId"] == "fcm":
                 # if fcm credentials exists we add token to it
