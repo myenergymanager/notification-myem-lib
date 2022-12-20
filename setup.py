@@ -15,9 +15,8 @@ setup(
     include_package_data=True,
     platforms="any",
     install_requires=[
-        "importlib-metadata==4.13.0",
-        "typing_extensions==4.0.0",
-        "requests==2.28.1",
+        "importlib-metadata>=4.13.0",
+        "requests>=2.28.1",
     ],
     extras_require={
         "dev": [
