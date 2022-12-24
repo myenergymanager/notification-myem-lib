@@ -1,5 +1,5 @@
 pipeline{
-    agent any
+    agent { label 'worker-2' }
     environment{
            // GEnerate random number between 0 and 1000
            DISCORD_WEBHOOK_URL = credentials('discord-webhook')
@@ -17,7 +17,6 @@ pipeline{
                 stage('Install dependencies')
                 {
                     steps {
-                        sh 'pip3 install pipenv==2021.5.29'
                         sh 'pipenv --rm || exit 0'
                         sh 'pipenv install --pre --dev'
                     }
