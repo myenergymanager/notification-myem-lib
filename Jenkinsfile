@@ -52,7 +52,7 @@ pipeline{
                     docker.withRegistry( '', registryCredential ) {
                         sh ("""cd tests/test_environment && \
                         docker-compose -p ${INTEGRATION_TESTS_CONTAINERS_PREFIX} up -d && \
-                        wait-for-it -p 3000 -h api -t 120 && export API_URL=http://api:3000 && pipenv install --pre --dev && export API_KEY=`python3 get_api_key.py` && cd ../.. && \
+                        wait-for-it -p 3000 -h api -t 120 && export API_URL=http://api:3000 && export API_KEY=`pipenv run python3 get_api_key.py` && cd ../.. && \
                         pipenv run coverage run --source=notification_lib -m pytest -v -s --junit-xml=reports/report.xml tests && pipenv run coverage xml""")
                     }
                }
