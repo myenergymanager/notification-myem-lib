@@ -42,7 +42,7 @@ class SubscribersManager(HttpRequester):
             return None
         subscriber = cast(
             subscriberType,
-            {value: json_response["data"][key] for key, value in subscriber_mirror.items()},
+            {value: json_response["data"].get(key) for key, value in subscriber_mirror.items()},
         )
         return subscriber
 
@@ -58,7 +58,7 @@ class SubscribersManager(HttpRequester):
             "items": cast(
                 list[subscriberType],
                 [
-                    {value: subscriber[key] for key, value in subscriber_mirror.items()}
+                    {value: subscriber.get(key) for key, value in subscriber_mirror.items()}
                     for subscriber in json_response["data"]
                 ],
             ),
