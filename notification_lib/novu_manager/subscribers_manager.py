@@ -225,11 +225,11 @@ class SubscribersManager(HttpRequester):
         You can disable for example a channel for a specific template, or disable the whole template.
         """
 
-        body = {
+        body: dict[str, Any] = {
             "channel": channel,
         }
         if enabled_template is not None:
-            setattr(body, "enabled", enabled_template)
+            body["enabled"] = enabled_template
 
         response = cls.send_request(
             operation="PATCH",

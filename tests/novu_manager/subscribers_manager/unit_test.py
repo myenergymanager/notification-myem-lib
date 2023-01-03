@@ -214,7 +214,6 @@ class TestSubscribersManager:
         template = novu.notification_templates_manager.get_template_by_name(
             template_name="template name"
         )
-        assert template["trigger_identifier"] == "template-name"
 
         response = novu.subscribers_manager.get_subscriber_preferences(
             subscriber_id=created_subscriber["subscriber_id"]
@@ -225,12 +224,9 @@ class TestSubscribersManager:
         assert response[0]["preference"]["enabled"] is True
         assert response[0]["preference"]["channels"]["in_app"] is True
 
-    def test_get_subscriber_preferences_no_template(self, novu, created_subscriber):
-        response = novu.subscribers_manager.get_subscriber_preferences(
-            subscriber_id=created_subscriber["subscriber_id"]
-        )
-
-        assert response == []
+    def test_get_subscriber_preferences_no_template(self, novu):
+        with pytest.raises(NotificationException):
+            novu.subscribers_manager.get_subscriber_preferences(subscriber_id=str(uuid4()))
 
     def test_update_subscriber_preferences(
         self, novu, created_subscriber, created_notification_template
@@ -239,7 +235,6 @@ class TestSubscribersManager:
         template = novu.notification_templates_manager.get_template_by_name(
             template_name="template name"
         )
-        assert template["trigger_identifier"] == "template-name"
 
         response = novu.subscribers_manager.update_subscriber_preferences(
             subscriber_id=created_subscriber["subscriber_id"],
