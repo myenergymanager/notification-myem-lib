@@ -3,5 +3,3 @@
 
 class NotificationException(Exception):
     """Notification Exception."""
-
-    pass

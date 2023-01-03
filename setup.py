@@ -15,21 +15,20 @@ setup(
     include_package_data=True,
     platforms="any",
     install_requires=[
-        "importlib-metadata>=4.13.0",
-        "requests>=2.28.1",
+        "importlib-metadata>=5.1.0",
+        "requests==2.28.1",
     ],
     extras_require={
         "dev": [
             # this depdency should be present in the client, we only used it here for test.
-            "pytest==6.2.5",
-            "coverage==6.2",
-            "flake8==3.9.2",
+            "pytest==7.2.0",
+            "coverage==6.5.0",
+            "flake8==6.0.0",
             "pytest-dotenv==0.5.2",
-            "pre-commit==2.17.0",
+            "pre-commit==2.20.0",
             "pydocstyle==6.1.1",
-            "pylint==2.12.2",
-            "mypy==0.910",
-            "typed-ast==1.4.3",
+            "pylint==2.15.8",
+            "mypy==0.991",
         ],
     },
     classifiers=[

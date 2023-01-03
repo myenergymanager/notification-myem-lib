@@ -2,7 +2,7 @@
 import json
 import logging
 import os
-from typing import Any, Dict, Optional
+from typing import Any
 
 import requests
 from typing_extensions import Literal
@@ -20,17 +20,17 @@ class HttpRequester:
         cls,
         operation: Literal["POST", "GET", "DELETE", "PATCH", "PUT"],
         endpoint: str,
-        body: Optional[Dict[str, Any]] = None,
+        body: dict[str, Any] | None = None,
     ) -> requests.Response:
         """Send a request based on the operation and params."""
         # TODO : to remove the bearer token once the bug is resolved in the novu platform
         #  and replace it with the api key {"Authorization": f"ApiKey {cls.api_key}}"}
-        params: Dict[str, Any] = {
+        params: dict[str, Any] = {
             "headers": {"Authorization": f"Bearer {cls.get_jwt_bearer_token()}"}
         }
         if body:
             params.update({"data": json.dumps(body)})
-        if operation in ["POST", "PATCH", "PUT"]:
+        if operation in {"POST", "PATCH", "PUT"}:
             params["headers"].update({"Content-Type": "application/json"})
         return getattr(requests, operation.lower())(f"{cls.api_url}{endpoint}", **params)
 
@@ -56,5 +56,6 @@ class HttpRequester:
                     "password": os.environ["NOVU_ADMIN_PASSWORD"],
                 }
             ),
+            timeout=10,
         )
         return login_response.json()["data"]["token"]

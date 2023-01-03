@@ -1,14 +1,12 @@
 """Novu types."""
-from typing import List, Optional
-
 from typing_extensions import TypedDict
 
 
 class SubscriberCredentials(TypedDict, total=False):
     """Subscriber credentials notiffs type."""
 
-    webhookUrl: Optional[str]
-    deviceTokens: List[str]
+    webhookUrl: str | None
+    deviceTokens: list[str]
 
 
 channelType = TypedDict(
@@ -30,12 +28,12 @@ subscriberType = TypedDict(
         "phone": str,
         "created_at": str,
         "updated_at": str,
-        "channels": List[channelType],
+        "channels": list[channelType],
     },
 )
 
 subscriberPageType = TypedDict(
-    "subscriberPageType", {"page": int, "size": int, "total": int, "items": List[subscriberType]}
+    "subscriberPageType", {"page": int, "size": int, "total": int, "items": list[subscriberType]}
 )
 
 notificationTemplateType = TypedDict(

@@ -1,5 +1,5 @@
 """Notification templates manager file."""
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from notification_lib.exceptions import NotificationException
 from notification_lib.http_requests import HttpRequester
@@ -18,7 +18,7 @@ class NotificationTemplatesManager(HttpRequester):
     def create_update_notification_template(
         cls,
         template_name: str,
-        steps: List[Dict[str, Any]],
+        steps: list[dict[str, Any]],
         notification_group_name: str = "General",
     ) -> None:
         """Create notification template."""
@@ -27,8 +27,7 @@ class NotificationTemplatesManager(HttpRequester):
         )
         if not notification_group_id:
             raise NotificationException("Can't create notification template !")
-        old_template = cls.get_template_by_name(template_name=template_name)
-        if not old_template:
+        if not (old_template := cls.get_template_by_name(template_name=template_name)):
             response = cls.send_request(
                 operation="POST",
                 endpoint="/v1/notification-templates",
@@ -56,7 +55,7 @@ class NotificationTemplatesManager(HttpRequester):
             cls.handle_response(response, "Can't update notification template !")
 
     @classmethod
-    def get_template_by_name(cls, template_name: str) -> Optional[notificationTemplateType]:
+    def get_template_by_name(cls, template_name: str) -> notificationTemplateType | None:
         """Get notification template by id."""
         response = cls.send_request(
             operation="GET",

@@ -1,5 +1,5 @@
 pipeline{
-    agent any
+    agent { label 'worker-2' }
     environment{
            // GEnerate random number between 0 and 1000
            DISCORD_WEBHOOK_URL = credentials('discord-webhook')
@@ -17,7 +17,6 @@ pipeline{
                 stage('Install dependencies')
                 {
                     steps {
-                        sh 'pip3 install pipenv==2021.5.29'
                         sh 'pipenv --rm || exit 0'
                         sh 'pipenv install --pre --dev'
                     }
@@ -53,7 +52,7 @@ pipeline{
                     docker.withRegistry( '', registryCredential ) {
                         sh ("""cd tests/test_environment && \
                         docker-compose -p ${INTEGRATION_TESTS_CONTAINERS_PREFIX} up -d && \
-                        wait-for-it -p 3000 -h api -t 120 && export API_URL=http://api:3000 && export API_KEY=`python3 get_api_key.py` && cd ../.. && \
+                        wait-for-it -p 3000 -h api -t 120 && export API_URL=http://api:3000 && export API_KEY=`pipenv run python3 get_api_key.py` && cd ../.. && \
                         pipenv run coverage run --source=notification_lib -m pytest -v -s --junit-xml=reports/report.xml tests && pipenv run coverage xml""")
                     }
                }

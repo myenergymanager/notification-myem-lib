@@ -1,6 +1,4 @@
 """Notification groups manager file."""
-from typing import Optional
-
 from notification_lib.http_requests import HttpRequester
 
 
@@ -12,7 +10,7 @@ class NotificationGroupsManager(HttpRequester):
     """
 
     @classmethod
-    def get_notification_group_id_by_name(cls, name: str) -> Optional[str]:
+    def get_notification_group_id_by_name(cls, name: str) -> str | None:
         """Get notification group id by name."""
         response = cls.send_request(
             operation="GET",

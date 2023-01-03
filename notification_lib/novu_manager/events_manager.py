@@ -1,5 +1,5 @@
 """Events manager file."""
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 from notification_lib.exceptions import NotificationException
 from notification_lib.http_requests import HttpRequester
@@ -21,10 +21,10 @@ class EventsManager(HttpRequester):
     def trigger_event(
         cls,
         template_name: str,
-        payload: Dict[str, Any],
-        recipients: Optional[Union[subscriberType, List[subscriberType], str, List[str]]] = None,
+        payload: dict[str, Any],
+        recipients: subscriberType | list[subscriberType] | str | list[str] | None = None,
         broadcast: bool = False,
-        overrides: Optional[Dict[str, Any]] = None,
+        overrides: dict[str, Any] | None = None,
     ) -> None:
         """Trigger an event using the template name and link it to recipients or broadcast it.
 
@@ -35,7 +35,7 @@ class EventsManager(HttpRequester):
         template = NotificationTemplatesManager.get_template_by_name(template_name=template_name)
         if not template:
             raise NotificationException("template doesn't exist !")
-        body: Dict[str, Any] = {"payload": payload, "name": template["trigger_identifier"]}
+        body: dict[str, Any] = {"payload": payload, "name": template["trigger_identifier"]}
         if recipients and not broadcast:
             body.update({"to": recipients})
         if overrides:
