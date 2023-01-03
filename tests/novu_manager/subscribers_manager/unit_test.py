@@ -207,3 +207,58 @@ class TestSubscribersManager:
             "deviceTokens": ["token_1", "token_2"]
         }
         assert subscribers["items"][0]["channels"][0]["providerId"] == "fcm"
+
+    def test_get_subscriber_preferences(
+        self, novu, created_subscriber, created_notification_template
+    ):
+        template = novu.notification_templates_manager.get_template_by_name(
+            template_name="template name"
+        )
+        assert template["trigger_identifier"] == "template-name"
+
+        response = novu.subscribers_manager.get_subscriber_preferences(
+            subscriber_id=created_subscriber["subscriber_id"]
+        )
+
+        assert response[0]["template"]["id"] == template["id"]
+        assert response[0]["template"]["template_name"] == template["template_name"]
+        assert response[0]["preference"]["enabled"] is True
+        assert response[0]["preference"]["channels"]["in_app"] is True
+
+    def test_get_subscriber_preferences_no_template(self, novu, created_subscriber):
+        response = novu.subscribers_manager.get_subscriber_preferences(
+            subscriber_id=created_subscriber["subscriber_id"]
+        )
+
+        assert response == []
+
+    def test_update_subscriber_preferences(
+        self, novu, created_subscriber, created_notification_template
+    ):
+
+        template = novu.notification_templates_manager.get_template_by_name(
+            template_name="template name"
+        )
+        assert template["trigger_identifier"] == "template-name"
+
+        response = novu.subscribers_manager.update_subscriber_preferences(
+            subscriber_id=created_subscriber["subscriber_id"],
+            template_id=template["id"],
+            channel={  # we specify in_app particularly in this test because it was created in the steps of template
+                "type": "in_app",
+                "enabled": False,
+            },
+            enabled_template=False,
+        )
+
+        assert response["channels"]["in_app"] is False
+        assert response["enabled"] is False
+
+    def test_update_subscriber_preferences_no_template(self, novu, created_subscriber):
+        with pytest.raises(NotificationException):
+            novu.subscribers_manager.update_subscriber_preferences(
+                subscriber_id=created_subscriber["subscriber_id"],
+                template_id="random_template",
+                channel={"type": "in_app", "enabled": False},
+                enabled_template=False,
+            )

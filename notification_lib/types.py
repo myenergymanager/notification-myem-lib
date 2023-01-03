@@ -1,4 +1,6 @@
 """Novu types."""
+from typing import Literal
+
 from typing_extensions import TypedDict
 
 
@@ -14,6 +16,25 @@ channelType = TypedDict(
     {
         "providerId": str,
         "credentials": SubscriberCredentials,
+    },
+)
+
+TemplateChannelTypes = Literal["push", "email", "sms", "in_app", "chat"]
+
+subscriberPreferencesInputChannelType = TypedDict(
+    "subscriberPreferencesInputChannelType", {"type": TemplateChannelTypes, "enabled": bool}
+)
+
+updateSubscriberPreferencesTypeOut = TypedDict(
+    "updateSubscriberPreferencesTypeOut",
+    {"channels": dict[TemplateChannelTypes, bool], "enabled": bool},
+)
+
+subscriberTemplatePreferencesType = TypedDict(
+    "subscriberTemplatePreferencesType",
+    {
+        "preference": updateSubscriberPreferencesTypeOut,
+        "template": dict[Literal["id", "template_name"], str],
     },
 )
 
