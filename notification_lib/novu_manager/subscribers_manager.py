@@ -4,7 +4,14 @@ from typing import Any, cast
 
 from notification_lib.exceptions import NotificationException
 from notification_lib.http_requests import HttpRequester
-from notification_lib.types import SubscriberCredentials, subscriberPageType, subscriberType
+from notification_lib.types import (
+    SubscriberCredentials,
+    subscriberPageType,
+    subscriberPreferencesInputChannelType,
+    subscriberTemplatePreferencesType,
+    subscriberType,
+    updateSubscriberPreferencesTypeOut,
+)
 
 
 subscriber_mirror = {
@@ -177,6 +184,66 @@ class SubscribersManager(HttpRequester):
         )
 
         cls.handle_response(response, "Can't set subscriber credentials !").json()
+
+    @classmethod
+    def get_subscriber_preferences(cls, subscriber_id: str) -> list[subscriberTemplatePreferencesType]:
+        """Get subscriber preferences for all templates."""
+
+        response = cls.send_request(
+            operation="GET",
+            endpoint=f"/v1/subscribers/{subscriber_id}/preferences",
+        )
+
+        json_response = \
+            cls.handle_response(response, "Can't get subscriber preferences for specified template !").json()
+
+        result = [
+            cast(
+                subscriberTemplatePreferencesType,
+                {
+                    "preference": template["preference"],
+                    "template": {
+                        "id": template["template"]["_id"],
+                        "template_name": template["template"]["name"]
+                    }
+                }
+            ) for template in json_response["data"]
+        ]
+
+        return result
+
+    @classmethod
+    def update_subscriber_preferences(
+            cls,
+            subscriber_id: str,
+            template_id: str,
+            channel: subscriberPreferencesInputChannelType,
+            enabled_template: bool | None = None
+    ) -> updateSubscriberPreferencesTypeOut:
+        """Update subscriber notification preferences for specific template known by his id.
+
+        You can disable for example a channel for a specific template, or disable the whole template.
+        """
+
+        body: dict[str, Any] = {
+            "channel": channel,
+        }
+        if enabled_template is not None:
+            body["enabled"] = enabled_template
+
+        response = cls.send_request(
+            operation="PATCH",
+            endpoint=f"/v1/subscribers/{subscriber_id}/preferences/{template_id}",
+            body=body,
+        )
+
+        json_response = \
+            cls.handle_response(response, "Can't update subscriber preferences for specified template !").json()
+
+        return {
+            "channels": json_response["data"]["preference"]["channels"],
+            "enabled": json_response["data"]["preference"]["enabled"]
+        }
 
     @classmethod
     def add_push_notification_device_token(cls, subscriber_id: str, device_token: str) -> None:
