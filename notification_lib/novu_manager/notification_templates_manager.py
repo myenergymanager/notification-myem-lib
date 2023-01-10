@@ -37,6 +37,13 @@ class NotificationTemplatesManager(HttpRequester):
                     "steps": steps,
                     "active": True,
                     "draft": False,
+                    "preferenceSettings": {  # set up all the default preferences for the users
+                        "email": False,
+                        "sms": False,
+                        "in_app": False,
+                        "chat": False,
+                        "push": False
+                    },
                 },
             )
             cls.handle_response(response, "Can't create notification template !")
