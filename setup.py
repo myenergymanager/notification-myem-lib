@@ -15,7 +15,6 @@ setup(
     include_package_data=True,
     platforms="any",
     install_requires=[
-        "importlib-metadata>=5.1.0",
         "requests==2.28.1",
     ],
     extras_require={
