@@ -10,6 +10,8 @@ from notification_lib.http_requests import HttpRequester
 class TestHttpRequester:
     HttpRequester.api_key = "api_key"
     HttpRequester.api_url = "http://api_url"
+    HttpRequester.admin_email = "myem+dev@myem.fr"
+    HttpRequester.admin_password = "admin1234"
 
     @pytest.fixture
     def mock_requests(self, monkeypatch):
