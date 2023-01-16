@@ -1,8 +1,9 @@
 """Test Novu utils functions."""
-from unittest.mock import Mock
+from unittest.mock import MagicMock, Mock
 
 import pytest
 from notification_lib.exceptions import NotificationException
+from notification_lib.http_requests import HttpRequester
 from notification_lib.novu_manager.generic_novu_manager import GenericNovuManager, requests
 
 
@@ -104,7 +105,18 @@ class TestGenericNovuManager:
         assert requests.get.call_count == 1
 
     def test_update_novu_local_template_no_templates(self, novu, monkeypatch):
-        monkeypatch.setattr(GenericNovuManager, "get_generic_novu_templates", lambda: templates)
+        monkeypatch.setattr(
+            novu.generic_novu_manager, "get_generic_novu_templates", lambda: templates
+        )
+
+        # save to restore them once finished with tests
+        get_notification_group_id_by_name = (
+            novu.notification_groups_manager.get_notification_group_id_by_name
+        )
+        create_notification_group = novu.notification_groups_manager.create_notification_group
+        create_update_notification_template = (
+            novu.notification_templates_manager.create_update_notification_template
+        )
 
         novu.notification_groups_manager.get_notification_group_id_by_name = Mock()
         novu.notification_groups_manager.get_notification_group_id_by_name.return_value = []
@@ -137,3 +149,18 @@ class TestGenericNovuManager:
             ]
             == templates[0]["steps"]
         )
+
+        # clean what have been created
+        novu.notification_groups_manager.get_notification_group_id_by_name = (
+            get_notification_group_id_by_name
+        )
+        novu.notification_groups_manager.create_notification_group = create_notification_group
+        novu.notification_templates_manager.create_update_notification_template = (
+            create_update_notification_template
+        )
+
+        for template in templates:
+            HttpRequester.send_request(
+                operation="DELETE",
+                endpoint=f"/v1/notification-templates/{template['id']}",
+            )
