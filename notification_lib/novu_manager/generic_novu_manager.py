@@ -5,10 +5,6 @@ from typing import Any
 
 import requests
 from notification_lib.exceptions import NotificationException
-from notification_lib.novu_manager.notification_groups_manager import NotificationGroupsManager
-from notification_lib.novu_manager.notification_templates_manager import (
-    NotificationTemplatesManager,
-)
 
 
 class GenericNovuManager:
@@ -55,25 +51,3 @@ class GenericNovuManager:
         logging.error(f"status code: {response.status_code}")
         logging.error(f"response : {response.json()}")
         raise NotificationException("Erreur lors de l'importation des templates")
-
-    @classmethod
-    def update_novu_local_templates(cls) -> None:
-        """Function that checks if there is templates, if not create them."""
-
-        if not (generic_templates := cls.get_generic_novu_templates()):
-            raise NotificationException("Aucun template généric")
-
-        # Before creating templates, if there is no default notification group, we have to create it
-        # be aware that General is the default name used in notification_lib for template creation
-        notification_group = NotificationGroupsManager.get_notification_group_id_by_name(
-            name="General"
-        )
-        if not notification_group:
-            NotificationGroupsManager.create_notification_group(name="General")
-
-        for template in generic_templates:
-            # if it exists, it will override it, if it does not exist, it will create it
-            NotificationTemplatesManager.create_update_notification_template(
-                template_name=template["name"],
-                steps=template["steps"],
-            )
