@@ -1,7 +1,6 @@
 """Http requests file."""
 import json
 import logging
-import os
 from typing import Any
 
 import requests
@@ -14,6 +13,8 @@ class HttpRequester:
 
     api_url: str
     api_key: str
+    admin_email: str
+    admin_password: str
 
     @classmethod
     def send_request(
@@ -52,8 +53,8 @@ class HttpRequester:
             headers={"Content-Type": "application/json"},
             data=json.dumps(
                 {
-                    "email": os.environ["NOVU_ADMIN_EMAIL"],
-                    "password": os.environ["NOVU_ADMIN_PASSWORD"],
+                    "email": cls.admin_email,
+                    "password": cls.admin_password,
                 }
             ),
             timeout=10,

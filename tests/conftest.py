@@ -8,7 +8,15 @@ from notification_lib.novu import Novu
 
 @pytest.fixture(scope="session")
 def novu():
-    yield Novu(os.environ["API_KEY"], os.environ["API_URL"])
+    yield Novu(
+        os.environ["API_KEY"],
+        os.environ["API_URL"],
+        os.environ["NOVU_ADMIN_EMAIL"],
+        os.environ["NOVU_ADMIN_PASSWORD"],
+        os.environ["API_URL_FOR_GENERIC_NOVU"],
+        os.environ["ADMIN_EMAIL_FOR_GENERIC_NOVU"],
+        os.environ["ADMIN_PASSWORD_FOR_GENERIC_NOVU"],
+    )
 
 
 @pytest.fixture(scope="session")

@@ -3,6 +3,7 @@ from typing import Any
 
 from notification_lib.exceptions import NotificationException
 from notification_lib.http_requests import HttpRequester
+from notification_lib.novu_manager.generic_novu_manager import GenericNovuManager
 from notification_lib.novu_manager.notification_groups_manager import NotificationGroupsManager
 from notification_lib.types import notificationTemplateType
 
@@ -42,7 +43,7 @@ class NotificationTemplatesManager(HttpRequester):
                         "sms": False,
                         "in_app": False,
                         "chat": False,
-                        "push": False
+                        "push": False,
                     },
                 },
             )
@@ -81,3 +82,25 @@ class NotificationTemplatesManager(HttpRequester):
                     "trigger_identifier": notification_template["triggers"][0]["identifier"],
                 }
         return None
+
+    @classmethod
+    def update_novu_local_templates(cls) -> None:
+        """Function that checks if there is templates, if not create them."""
+
+        if not (generic_templates := GenericNovuManager.get_generic_novu_templates()):
+            raise NotificationException("Aucun template généric")
+
+        # Before creating templates, if there is no default notification group, we have to create it
+        # be aware that General is the default name used in notification_lib for template creation
+        notification_group = NotificationGroupsManager.get_notification_group_id_by_name(
+            name="General"
+        )
+        if not notification_group:
+            NotificationGroupsManager.create_notification_group(name="General")
+
+        for template in generic_templates:
+            # if it exists, it will override it, if it does not exist, it will create it
+            cls.create_update_notification_template(
+                template_name=template["name"],
+                steps=template["steps"],
+            )
