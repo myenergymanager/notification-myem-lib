@@ -77,7 +77,7 @@ class TestGenericNovuManager:
 
     def test_get_generic_novu_templates(self, novu, monkeypatch, mock_request_call):
         mock_request_call(
-            response_body=templates,
+            response_body={"data": templates},
             status_code=200,
             operation="get",
         )

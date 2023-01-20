@@ -46,7 +46,7 @@ class GenericNovuManager:
         )
 
         if response.status_code // 100 == 2:
-            return response.json()
+            return response.json()["data"]
 
         logging.error(f"status code: {response.status_code}")
         logging.error(f"response : {response.json()}")
