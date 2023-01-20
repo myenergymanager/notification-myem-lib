@@ -99,8 +99,17 @@ class NotificationTemplatesManager(HttpRequester):
             NotificationGroupsManager.create_notification_group(name="General")
 
         for template in generic_templates:
-            # if it exists, it will override it, if it does not exist, it will create it
+            # if it exists, it will override it to update, if it does not exist, it will create it
+            steps = []
+            for step in template["steps"]:
+                steps.append(
+                    {
+                        "active": step["active"],
+                        "filters": step["filters"] if "filters" in step else [],
+                        "template": step["template"] if "template" in step else {},
+                    }
+                )
             cls.create_update_notification_template(
                 template_name=template["name"],
-                steps=template["steps"],
+                steps=steps,
             )
