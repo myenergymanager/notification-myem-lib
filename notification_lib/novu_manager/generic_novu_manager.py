@@ -52,6 +52,17 @@ class GenericNovuManager:
         logging.error(f"response : {response.json()}")
         raise NotificationException("Erreur lors de l'importation des templates")
 
+    @staticmethod
+    def format_filter(step_filter: dict[str, Any]) -> dict[str, Any]:
+        """Take useful fields for the filter."""
+
+        needed_fields = ["children", "isNegated", "type", "value"]
+        formated_filter = {}
+        for key in step_filter.keys():
+            if key in needed_fields:
+                formated_filter[key] = step_filter[key]
+        return formated_filter
+
     @classmethod
     def get_generic_template_by_id(cls, template_id: str) -> dict[str, Any]:
         """Get generic template by providing his id."""
@@ -65,22 +76,12 @@ class GenericNovuManager:
             result = response.json()["data"]
             steps = []
 
-            def construct_filters(step_filter: dict[str, Any]) -> dict[str, Any]:
-                """Take useful fields for the filter."""
-
-                needed_fields = ["children", "isNegated", "type", "value"]
-                formated_filter = {}
-                for key in step_filter.keys():
-                    if key in needed_fields:
-                        formated_filter[key] = step_filter[key]
-                return formated_filter
-
             for step in result["steps"]:
                 steps.append(
                     {
                         "active": step["active"],
                         "filters": [
-                            construct_filters(step_filter) for step_filter in step["filters"]
+                            cls.format_filter(step_filter) for step_filter in step["filters"]
                         ],
                         "template": {
                             "type": step["template"]["type"],

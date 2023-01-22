@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 import pytest
 from notification_lib.exceptions import NotificationException
-from notification_lib.novu_manager.generic_novu_manager import requests
+from notification_lib.novu_manager.generic_novu_manager import GenericNovuManager, requests
 
 
 @pytest.fixture
@@ -236,3 +236,20 @@ class TestGenericNovuManager:
                 "active": True,
             },
         ]
+
+    def test_construct_filters(self):
+        formated_filter = GenericNovuManager.format_filter(templates[0]["steps"][0]["filters"][0])
+
+        assert formated_filter == {
+            "isNegated": True,
+            "type": "BOOLEAN",
+            "value": "AND",
+            "children": [
+                {
+                    "field": "string",
+                    "value": "string",
+                    "operator": "LARGER",
+                    "on": "payload",
+                }
+            ],
+        }
