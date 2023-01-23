@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock, Mock
+from unittest.mock import Mock
 
 from notification_lib.http_requests import HttpRequester
 

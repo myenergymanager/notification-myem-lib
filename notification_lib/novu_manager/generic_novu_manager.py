@@ -53,15 +53,46 @@ class GenericNovuManager:
         raise NotificationException("Erreur lors de l'importation des templates")
 
     @staticmethod
-    def format_filter(step_filter: dict[str, Any]) -> dict[str, Any]:
+    def format_filter_to_create_update(filter_from_generic: dict[str, Any]) -> dict[str, Any]:
         """Take useful fields for the filter."""
 
-        needed_fields = ["children", "isNegated", "type", "value"]
-        formated_filter = {}
-        for key in step_filter.keys():
-            if key in needed_fields:
-                formated_filter[key] = step_filter[key]
-        return formated_filter
+        return {
+            key: filter_from_generic[key]
+            for key in filter_from_generic.keys()
+            if key in {"children", "isNegated", "type", "value"}
+        }
+
+    @staticmethod
+    def format_steps_to_create_update(
+        steps_from_generic: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
+        """Format the steps that we get from generic novu so that we can use it in creation and update."""
+        steps = []
+
+        for step in steps_from_generic:
+            formated_template = {
+                "type": step["template"]["type"],
+                "active": step["template"]["active"],
+                "variables": step["template"]["variables"],
+                "content": step["template"]["content"],
+            }
+            if step["template"]["type"] == "push":
+                formated_template["title"] = step["template"]["title"]
+            if step["template"]["type"] == "email":
+                formated_template["subject"] = step["template"]["subject"]
+
+            steps.append(
+                {
+                    "active": step["active"],
+                    "filters": [
+                        GenericNovuManager.format_filter_to_create_update(step_filter)
+                        for step_filter in step["filters"]
+                    ],
+                    "template": formated_template,
+                }
+            )
+
+        return steps
 
     @classmethod
     def get_generic_template_by_id(cls, template_id: str) -> dict[str, Any]:
@@ -72,28 +103,13 @@ class GenericNovuManager:
             timeout=5,
         )
 
-        if response.status_code // 100 == 2:
+        if response.status_code == 200:
             result = response.json()["data"]
-            steps = []
-
-            for step in result["steps"]:
-                steps.append(
-                    {
-                        "active": step["active"],
-                        "filters": [
-                            cls.format_filter(step_filter) for step_filter in step["filters"]
-                        ],
-                        "template": {
-                            "type": step["template"]["type"],
-                            "active": step["template"]["active"],
-                            "variables": step["template"]["variables"],
-                            "content": step["template"]["content"],
-                            "title": step["template"]["title"],
-                        },
-                    }
-                )
-
-            return {"template_name": result["name"], "id": result["_id"], "steps": steps}
+            return {
+                "template_name": result["name"],
+                "id": result["_id"],
+                "steps": cls.format_steps_to_create_update(result["steps"]),
+            }
 
         logging.error(f"status code: {response.status_code}")
         logging.error(f"response : {response.json()}")
