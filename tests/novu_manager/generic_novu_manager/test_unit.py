@@ -60,20 +60,26 @@ templates = [
             },
             {
                 "template": {
-                    "_id": "63ca524e2ad2a2b52691e52f",
-                    "type": "push",
+                    "_id": "63ca524e2ad2a2b52691e537",
+                    "type": "email",
                     "active": True,
+                    "subject": "Ecowatt alerte périodique",
                     "variables": [],
-                    "content": "signal rouge ou orange prévue pour les trois prochains jours ",
-                    "title": "Ecowatt alerte periodique ",
+                    "content": [
+                        {
+                            "type": "text",
+                            "content": "signal rouge ou orange prévue pour les trois prochains jours",
+                            "styles": {"textAlign": "left"},
+                        }
+                    ],
                     "_environmentId": "63bee3fc2ad2a2b52691e0c3",
                     "_organizationId": "63bee3fc2ad2a2b52691e0bd",
                     "_creatorId": "63bee3fc2ad2a2b52691e0b6",
                     "_feedId": None,
-                    "createdAt": "2023-01-20T08:35:26.395Z",
-                    "updatedAt": "2023-01-20T13:59:27.506Z",
+                    "createdAt": "2023-01-20T08:35:26.417Z",
+                    "updatedAt": "2023-01-23T09:31:20.281Z",
                     "__v": 0,
-                    "id": "63ca524e2ad2a2b52691e52f",
+                    "id": "63ca524e2ad2a2b52691e537",
                 },
                 "filters": [
                     {
@@ -212,11 +218,17 @@ class TestGenericNovuManager:
             },
             {
                 "template": {
-                    "type": "push",
+                    "type": "email",
                     "active": True,
                     "variables": [],
-                    "content": "signal rouge ou orange prévue pour les trois prochains jours ",
-                    "title": "Ecowatt alerte periodique ",
+                    "content": [
+                        {
+                            "type": "text",
+                            "content": "signal rouge ou orange prévue pour les trois prochains jours",
+                            "styles": {"textAlign": "left"},
+                        }
+                    ],
+                    "subject": "Ecowatt alerte périodique",
                 },
                 "filters": [
                     {
@@ -238,7 +250,9 @@ class TestGenericNovuManager:
         ]
 
     def test_construct_filters(self):
-        formated_filter = GenericNovuManager.format_filter(templates[0]["steps"][0]["filters"][0])
+        formated_filter = GenericNovuManager.format_filter_to_create_update(
+            templates[0]["steps"][0]["filters"][0]
+        )
 
         assert formated_filter == {
             "isNegated": True,
