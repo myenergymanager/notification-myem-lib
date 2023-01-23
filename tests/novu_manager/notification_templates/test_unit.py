@@ -9,7 +9,11 @@ templates = [
         "name": "template_name",
         "steps": [
             {
-                "template": {},
+                "template": {
+                    "content": "content",
+                    "type": "in_app",
+                    "active": True,
+                },
                 "filters": [
                     {
                         "isNegated": True,
@@ -95,6 +99,9 @@ class TestNotificationTemplatesManager:
         create_update_notification_template = (
             novu.notification_templates_manager.create_update_notification_template
         )
+        get_generic_template_by_id = novu.generic_novu_manager.get_generic_template_by_id
+
+        # mock the functions with there return values
 
         novu.notification_groups_manager.get_notification_group_id_by_name = Mock()
         novu.notification_groups_manager.get_notification_group_id_by_name.return_value = []
@@ -105,8 +112,20 @@ class TestNotificationTemplatesManager:
         novu.notification_templates_manager.create_update_notification_template = Mock()
         novu.notification_templates_manager.create_update_notification_template.return_value = []
 
+        novu.generic_novu_manager.get_generic_template_by_id = Mock()
+        novu.generic_novu_manager.get_generic_template_by_id.return_value = {
+            "template_name": templates[0]["name"],
+            "id": templates[0]["id"],
+            "steps": templates[0]["steps"],  # in the variable they are already formated
+        }
+
         novu.notification_templates_manager.update_novu_local_templates()
 
+        assert novu.generic_novu_manager.get_generic_template_by_id.call_count == 1
+        assert (
+            novu.generic_novu_manager.get_generic_template_by_id.call_args[1]["template_id"]
+            == templates[0]["id"]
+        )
         assert novu.notification_groups_manager.create_notification_group.call_count == 1
         assert (
             novu.notification_groups_manager.create_notification_group.call_args[1]["name"]
@@ -136,6 +155,7 @@ class TestNotificationTemplatesManager:
         novu.notification_templates_manager.create_update_notification_template = (
             create_update_notification_template
         )
+        novu.generic_novu_manager.get_generic_template_by_id = get_generic_template_by_id
 
         for template in templates:
             HttpRequester.send_request(

@@ -51,3 +51,50 @@ class GenericNovuManager:
         logging.error(f"status code: {response.status_code}")
         logging.error(f"response : {response.json()}")
         raise NotificationException("Erreur lors de l'importation des templates")
+
+    @staticmethod
+    def format_filter(step_filter: dict[str, Any]) -> dict[str, Any]:
+        """Take useful fields for the filter."""
+
+        needed_fields = ["children", "isNegated", "type", "value"]
+        formated_filter = {}
+        for key in step_filter.keys():
+            if key in needed_fields:
+                formated_filter[key] = step_filter[key]
+        return formated_filter
+
+    @classmethod
+    def get_generic_template_by_id(cls, template_id: str) -> dict[str, Any]:
+        """Get generic template by providing his id."""
+        response = requests.get(
+            url=f"{cls.api_url_generic_novu}/v1/notification-templates/{template_id}",
+            headers={"Authorization": f"Bearer {cls.get_novu_jwt_bearer_token()}"},
+            timeout=5,
+        )
+
+        if response.status_code // 100 == 2:
+            result = response.json()["data"]
+            steps = []
+
+            for step in result["steps"]:
+                steps.append(
+                    {
+                        "active": step["active"],
+                        "filters": [
+                            cls.format_filter(step_filter) for step_filter in step["filters"]
+                        ],
+                        "template": {
+                            "type": step["template"]["type"],
+                            "active": step["template"]["active"],
+                            "variables": step["template"]["variables"],
+                            "content": step["template"]["content"],
+                            "title": step["template"]["title"],
+                        },
+                    }
+                )
+
+            return {"template_name": result["name"], "id": result["_id"], "steps": steps}
+
+        logging.error(f"status code: {response.status_code}")
+        logging.error(f"response : {response.json()}")
+        raise NotificationException("Erreur lors de l'importation du template")
