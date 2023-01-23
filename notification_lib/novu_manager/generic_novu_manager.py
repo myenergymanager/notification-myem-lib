@@ -10,9 +10,9 @@ from notification_lib.exceptions import NotificationException
 class GenericNovuManager:
     """Novu utils, template creation/ update."""
 
-    api_url_generic_novu: str | None = "https://novu.api.global.myem.io"
-    admin_email_for_generic_novu: str | None = "accounts+global@myem.fr"
-    admin_password_for_generic_novu: str | None = "ksjd5456dfDFGDG87fe"
+    api_url_generic_novu: str | None
+    admin_email_for_generic_novu: str | None
+    admin_password_for_generic_novu: str | None
 
     @classmethod
     def get_novu_jwt_bearer_token(cls) -> str:
