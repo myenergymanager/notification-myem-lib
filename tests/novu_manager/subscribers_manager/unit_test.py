@@ -19,7 +19,7 @@ class TestSubscribersManager:
         preferences = novu.subscribers_manager.get_subscriber_preferences(
             subscriber_id=subscriber["subscriber_id"]
         )
-        assert preferences[0]["preference"]["channels"]["in_app"] is False
+        assert preferences[0]["preference"]["channels"]["in_app"] is True
 
     def test_get_subscriber(self, novu, created_subscriber):
         subscriber = novu.subscribers_manager.get_subscriber(created_subscriber["subscriber_id"])
@@ -228,7 +228,7 @@ class TestSubscribersManager:
         assert response[0]["template"]["id"] == template["id"]
         assert response[0]["template"]["template_name"] == template["template_name"]
         assert response[0]["preference"]["enabled"] is True
-        assert response[0]["preference"]["channels"]["in_app"] is False
+        assert response[0]["preference"]["channels"]["in_app"] is True
 
     def test_get_subscriber_preferences_no_template(self, novu):
         with pytest.raises(NotificationException):
@@ -247,12 +247,12 @@ class TestSubscribersManager:
             template_id=template["id"],
             channel={  # we specify in_app particularly in this test because it was created in the steps of template
                 "type": "in_app",
-                "enabled": True,
+                "enabled": False,
             },
             enabled_template=False,
         )
 
-        assert response["channels"]["in_app"] is True
+        assert response["channels"]["in_app"] is False
         assert response["enabled"] is False
 
     def test_update_subscriber_preferences_no_template(self, novu, created_subscriber):

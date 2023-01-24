@@ -41,7 +41,7 @@ class NotificationTemplatesManager(HttpRequester):
                     "preferenceSettings": {  # set up all the default preferences for the users
                         "email": False,
                         "sms": False,
-                        "in_app": False,
+                        "in_app": True,
                         "chat": False,
                         "push": False,
                     },
