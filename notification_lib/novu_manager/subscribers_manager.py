@@ -186,7 +186,9 @@ class SubscribersManager(HttpRequester):
         cls.handle_response(response, "Can't set subscriber credentials !").json()
 
     @classmethod
-    def get_subscriber_preferences(cls, subscriber_id: str) -> list[subscriberTemplatePreferencesType]:
+    def get_subscriber_preferences(
+        cls, subscriber_id: str
+    ) -> list[subscriberTemplatePreferencesType]:
         """Get subscriber preferences for all templates."""
 
         response = cls.send_request(
@@ -194,8 +196,9 @@ class SubscribersManager(HttpRequester):
             endpoint=f"/v1/subscribers/{subscriber_id}/preferences",
         )
 
-        json_response = \
-            cls.handle_response(response, "Can't get subscriber preferences for specified template !").json()
+        json_response = cls.handle_response(
+            response, "Can't get subscriber preferences for specified template !"
+        ).json()
 
         result = [
             cast(
@@ -204,21 +207,22 @@ class SubscribersManager(HttpRequester):
                     "preference": template["preference"],
                     "template": {
                         "id": template["template"]["_id"],
-                        "template_name": template["template"]["name"]
-                    }
-                }
-            ) for template in json_response["data"]
+                        "template_name": template["template"]["name"],
+                    },
+                },
+            )
+            for template in json_response["data"]
         ]
 
         return result
 
     @classmethod
     def update_subscriber_preferences(
-            cls,
-            subscriber_id: str,
-            template_id: str,
-            channel: subscriberPreferencesInputChannelType,
-            enabled_template: bool | None = None
+        cls,
+        subscriber_id: str,
+        template_id: str,
+        channel: subscriberPreferencesInputChannelType,
+        enabled_template: bool | None = None,
     ) -> updateSubscriberPreferencesTypeOut:
         """Update subscriber notification preferences for specific template known by his id.
 
@@ -237,12 +241,13 @@ class SubscribersManager(HttpRequester):
             body=body,
         )
 
-        json_response = \
-            cls.handle_response(response, "Can't update subscriber preferences for specified template !").json()
+        json_response = cls.handle_response(
+            response, "Can't update subscriber preferences for specified template !"
+        ).json()
 
         return {
             "channels": json_response["data"]["preference"]["channels"],
-            "enabled": json_response["data"]["preference"]["enabled"]
+            "enabled": json_response["data"]["preference"]["enabled"],
         }
 
     @classmethod
@@ -260,6 +265,11 @@ class SubscribersManager(HttpRequester):
         if not subscriber_fcm_credentials:
             # if fcm credentials doesn't exist we initialize it with the new token
             subscriber_fcm_credentials = {"deviceTokens": [device_token]}
+            cls.update_subscriber_credentials(subscriber_id, "fcm", subscriber_fcm_credentials)
+        elif device_token in subscriber_fcm_credentials["deviceTokens"]:
+            # if device token already exists we don't add it
+            return
         else:
+            # else we add the new device token
             subscriber_fcm_credentials["deviceTokens"].append(device_token)
-        cls.update_subscriber_credentials(subscriber_id, "fcm", subscriber_fcm_credentials)
+            cls.update_subscriber_credentials(subscriber_id, "fcm", subscriber_fcm_credentials)

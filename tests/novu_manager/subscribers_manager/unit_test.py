@@ -214,6 +214,19 @@ class TestSubscribersManager:
         }
         assert subscribers["items"][0]["channels"][0]["providerId"] == "fcm"
 
+    def test_add_device_token_duplicated_token(self, novu, created_subscriber, created_integration):
+        novu.subscribers_manager.add_push_notification_device_token(
+            subscriber_id=created_subscriber["subscriber_id"], device_token="token_1"
+        )
+        novu.subscribers_manager.add_push_notification_device_token(
+            subscriber_id=created_subscriber["subscriber_id"], device_token="token_1"
+        )
+        subscribers = novu.subscribers_manager.get_subscribers(page=1)
+        assert subscribers["items"][0]["channels"][0]["credentials"] == {
+            "deviceTokens": ["token_1"]
+        }
+        assert subscribers["items"][0]["channels"][0]["providerId"] == "fcm"
+
     def test_get_subscriber_preferences(
         self, novu, created_subscriber, created_notification_template
     ):
