@@ -103,7 +103,7 @@ class NotificationTemplatesManager(HttpRequester):
         for item in template_values:
             for generic_template_dict in generic_templates:
                 if item is not None and "name" in generic_template_dict:
-                    if item in generic_template_dict["name"]:
+                    if item in generic_template_dict['name']:
                         full_template = GenericNovuManager.get_generic_template_by_id(
                             template_id=generic_template_dict["id"]
                         )
