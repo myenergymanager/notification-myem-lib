@@ -17,10 +17,10 @@ class NotificationTemplatesManager(HttpRequester):
 
     @classmethod
     def create_update_notification_template(
-        cls,
-        template_name: str,
-        steps: list[dict[str, Any]],
-        notification_group_name: str = "General",
+            cls,
+            template_name: str,
+            steps: list[dict[str, Any]],
+            notification_group_name: str = "General",
     ) -> None:
         """Create notification template."""
         notification_group_id = NotificationGroupsManager.get_notification_group_id_by_name(
@@ -84,7 +84,7 @@ class NotificationTemplatesManager(HttpRequester):
         return None
 
     @classmethod
-    def update_novu_local_templates(cls, template_values: list[str]) -> None:
+    def update_novu_local_templates(cls, templates_to_update: list[str]) -> None:
         """Function that checks if there is templates, if not create them."""
 
         if not (generic_templates := GenericNovuManager.get_generic_novu_templates()):
@@ -98,17 +98,16 @@ class NotificationTemplatesManager(HttpRequester):
         if not notification_group:
             NotificationGroupsManager.create_notification_group(name="General")
 
-        # Check if every template_values that were passed to the function exists among the generic templates.
-        # This way we only use the relevant templates and not all of them.
-        for item in template_values:
+        # Check if every templates_to_update that were passed to the function exists among the generic templates.
+        # This way we only use the matching templates and not all of them.
+        for item in templates_to_update:
             for generic_template_dict in generic_templates:
-                if item is not None and "name" in generic_template_dict:
-                    if item in generic_template_dict['name']:
-                        full_template = GenericNovuManager.get_generic_template_by_id(
-                            template_id=generic_template_dict["id"]
-                        )
-                        # if it exists, it will override it to update, if it does not exist, it will create it
-                        cls.create_update_notification_template(
-                            template_name=full_template["template_name"],
-                            steps=full_template["steps"],
-                        )
+                if item is not None and item in generic_template_dict['name']:
+                    full_template = GenericNovuManager.get_generic_template_by_id(
+                        template_id=generic_template_dict["id"]
+                    )
+                    # if it exists, it will override it to update, if it does not exist, it will create it
+                    cls.create_update_notification_template(
+                        template_name=full_template["template_name"],
+                        steps=full_template["steps"],
+                    )
