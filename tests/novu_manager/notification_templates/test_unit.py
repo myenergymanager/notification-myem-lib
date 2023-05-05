@@ -119,9 +119,10 @@ class TestNotificationTemplatesManager:
             "steps": templates[0]["steps"],  # in the variable they are already formated
         }
 
-        templates_values = ["template_name", "template_name_2"]
-        novu.notification_templates_manager.update_novu_local_templates(templates_values)
+        templates_to_update = ["template_name", "template_name_2"]
+        novu.notification_templates_manager.update_novu_local_templates(templates_to_update)
 
+        # Count should be one because only one matching between templates_to_update and templates.
         assert novu.generic_novu_manager.get_generic_template_by_id.call_count == 1
         assert (
             novu.generic_novu_manager.get_generic_template_by_id.call_args[1]["template_id"]
