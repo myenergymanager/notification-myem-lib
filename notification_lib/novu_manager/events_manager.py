@@ -25,6 +25,7 @@ class EventsManager(HttpRequester):
         recipients: subscriberType | list[subscriberType] | str | list[str] | None = None,
         broadcast: bool = False,
         overrides: dict[str, Any] | None = None,
+        default_payload: dict[str, Any] | None = None,
     ) -> None:
         """Trigger an event using the template name and link it to recipients or broadcast it.
 
@@ -35,7 +36,10 @@ class EventsManager(HttpRequester):
         template = NotificationTemplatesManager.get_template_by_name(template_name=template_name)
         if not template:
             raise NotificationException("template doesn't exist !")
-        body: dict[str, Any] = {"payload": payload, "name": template["trigger_identifier"]}
+        body: dict[str, Any] = {
+            "payload": {**(default_payload or {}), **payload},
+            "name": template["trigger_identifier"],
+        }
         if recipients and not broadcast:
             body.update({"to": recipients})
         if overrides:
