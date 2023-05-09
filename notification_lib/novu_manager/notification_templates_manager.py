@@ -84,8 +84,12 @@ class NotificationTemplatesManager(HttpRequester):
         return None
 
     @classmethod
-    def update_novu_local_templates(cls) -> None:
+    def update_novu_local_templates(cls, templates_to_update: list[str]) -> None:
         """Function that checks if there is templates, if not create them."""
+
+        # If there is no template to update, return from the function.
+        if not templates_to_update:
+            return
 
         if not (generic_templates := GenericNovuManager.get_generic_novu_templates()):
             raise NotificationException("Aucun template généric")
@@ -98,12 +102,15 @@ class NotificationTemplatesManager(HttpRequester):
         if not notification_group:
             NotificationGroupsManager.create_notification_group(name="General")
 
-        for template in generic_templates:
-            full_template = GenericNovuManager.get_generic_template_by_id(
-                template_id=template["id"]
-            )
-            # if it exists, it will override it to update, if it does not exist, it will create it
-            cls.create_update_notification_template(
-                template_name=full_template["template_name"],
-                steps=full_template["steps"],
-            )
+        # Check if every templates_to_update that were passed to the function exists among the generic templates.
+        # This way we only use the matching templates and not all of them.
+        for generic_template_dict in generic_templates:
+            if generic_template_dict["name"] in templates_to_update:
+                full_template = GenericNovuManager.get_generic_template_by_id(
+                    template_id=generic_template_dict["id"]
+                )
+                # if it exists, it will override it to update, if it does not exist, it will create it
+                cls.create_update_notification_template(
+                    template_name=full_template["template_name"],
+                    steps=full_template["steps"],
+                )
