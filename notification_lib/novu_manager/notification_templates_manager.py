@@ -87,6 +87,10 @@ class NotificationTemplatesManager(HttpRequester):
     def update_novu_local_templates(cls, templates_to_update: list[str]) -> None:
         """Function that checks if there is templates, if not create them."""
 
+        # If there is no template to update, return from the function.
+        if not templates_to_update:
+            return
+
         if not (generic_templates := GenericNovuManager.get_generic_novu_templates()):
             raise NotificationException("Aucun template généric")
 
