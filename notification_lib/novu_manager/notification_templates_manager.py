@@ -17,10 +17,10 @@ class NotificationTemplatesManager(HttpRequester):
 
     @classmethod
     def create_update_notification_template(
-            cls,
-            template_name: str,
-            steps: list[dict[str, Any]],
-            notification_group_name: str = "General",
+        cls,
+        template_name: str,
+        steps: list[dict[str, Any]],
+        notification_group_name: str = "General",
     ) -> None:
         """Create notification template."""
         notification_group_id = NotificationGroupsManager.get_notification_group_id_by_name(
@@ -100,14 +100,13 @@ class NotificationTemplatesManager(HttpRequester):
 
         # Check if every templates_to_update that were passed to the function exists among the generic templates.
         # This way we only use the matching templates and not all of them.
-        for item in templates_to_update:
-            for generic_template_dict in generic_templates:
-                if item is not None and item in generic_template_dict['name']:
-                    full_template = GenericNovuManager.get_generic_template_by_id(
-                        template_id=generic_template_dict["id"]
-                    )
-                    # if it exists, it will override it to update, if it does not exist, it will create it
-                    cls.create_update_notification_template(
-                        template_name=full_template["template_name"],
-                        steps=full_template["steps"],
-                    )
+        for generic_template_dict in generic_templates:
+            if generic_template_dict["name"] in templates_to_update:
+                full_template = GenericNovuManager.get_generic_template_by_id(
+                    template_id=generic_template_dict["id"]
+                )
+                # if it exists, it will override it to update, if it does not exist, it will create it
+                cls.create_update_notification_template(
+                    template_name=full_template["template_name"],
+                    steps=full_template["steps"],
+                )
