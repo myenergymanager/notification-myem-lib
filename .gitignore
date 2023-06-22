@@ -5,3 +5,4 @@ __pycache__
 reports/
 *.egg-info/
 /dev_scripts/.local.env
+.vscode

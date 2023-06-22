@@ -1,4 +1,5 @@
 """Events manager file."""
+import logging
 from typing import Any
 
 from notification_lib.exceptions import NotificationException
@@ -7,6 +8,9 @@ from notification_lib.novu_manager.notification_templates_manager import (
     NotificationTemplatesManager,
 )
 from notification_lib.types import subscriberType
+
+
+logging.getLogger().setLevel(logging.INFO)
 
 
 class EventsManager(HttpRequester):
@@ -31,6 +35,11 @@ class EventsManager(HttpRequester):
 
         It's possible also to override template config.
         """
+
+        logging.info(f"template_name: {template_name}")
+        logging.info(f"payload: {payload}")
+        logging.info(f"default_payload: {default_payload}")
+
         if not broadcast and not recipients:
             raise NotificationException("you must specify recipients or set a broadcast trigger!")
         template = NotificationTemplatesManager.get_template_by_name(template_name=template_name)
@@ -49,4 +58,5 @@ class EventsManager(HttpRequester):
             endpoint=f"/v1/events/trigger{'/broadcast' if broadcast else ''}",
             body=body,
         )
+        logging.info(f"trigger event response: {response}")
         cls.handle_response(response, "Trigger creation has failed !")
