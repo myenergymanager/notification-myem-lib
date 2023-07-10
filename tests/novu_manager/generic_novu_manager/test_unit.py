@@ -29,7 +29,7 @@ templates = [
                     "type": "push",
                     "active": True,
                     "variables": [],
-                    "content": "signal rouge ou orange prévue pour les trois prochains jours ",
+                    "content": "test push content",
                     "title": "Ecowatt alerte periodique ",
                     "_environmentId": "63bee3fc2ad2a2b52691e0c3",
                     "_organizationId": "63bee3fc2ad2a2b52691e0bd",
@@ -68,7 +68,7 @@ templates = [
                     "content": [
                         {
                             "type": "text",
-                            "content": "signal rouge ou orange prévue pour les trois prochains jours",
+                            "content": "test email content",
                             "styles": {"textAlign": "left"},
                         }
                     ],
@@ -196,7 +196,7 @@ class TestGenericNovuManager:
                     "type": "push",
                     "active": True,
                     "variables": [],
-                    "content": "signal rouge ou orange prévue pour les trois prochains jours ",
+                    "content": "test email content",
                     "title": "Ecowatt alerte periodique ",
                 },
                 "filters": [
@@ -224,7 +224,7 @@ class TestGenericNovuManager:
                     "content": [
                         {
                             "type": "text",
-                            "content": "signal rouge ou orange prévue pour les trois prochains jours",
+                            "content": "test email content",
                             "styles": {"textAlign": "left"},
                         }
                     ],
@@ -267,3 +267,46 @@ class TestGenericNovuManager:
                 }
             ],
         }
+
+    def test_format_steps_to_create_update_custom_html_content(self):
+        templates[0]["steps"][1] = {
+            "template": {
+                "_id": "63ca524e2ad2a2b52691e537",
+                "type": "email",
+                "active": True,
+                "subject": "Ecowatt alerte périodique",
+                "variables": [],
+                "content": "<h1>test</h1>",
+                "contentType": "customHtml",
+                "_environmentId": "63bee3fc2ad2a2b52691e0c3",
+                "_organizationId": "63bee3fc2ad2a2b52691e0bd",
+                "_creatorId": "63bee3fc2ad2a2b52691e0b6",
+                "_feedId": None,
+                "createdAt": "2023-01-20T08:35:26.417Z",
+                "updatedAt": "2023-01-23T09:31:20.281Z",
+                "__v": 0,
+                "id": "63ca524e2ad2a2b52691e537",
+            },
+            "filters": [
+                {
+                    "isNegated": True,
+                    "type": "BOOLEAN",
+                    "value": "AND",
+                    "children": [
+                        {
+                            "field": "string",
+                            "value": "string",
+                            "operator": "LARGER",
+                            "on": "payload",
+                        }
+                    ],
+                    "_id": "63ca524e2ad2a2b52691e545",
+                }
+            ],
+            "active": True,
+        }
+
+        formatted_steps = GenericNovuManager.format_steps_to_create_update(templates[0]["steps"])
+
+        assert formatted_steps[1]["template"]["content"] == "<h1>test</h1>"
+        assert formatted_steps[1]["template"]["contentType"] == "customHtml"

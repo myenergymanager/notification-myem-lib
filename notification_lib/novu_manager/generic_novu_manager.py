@@ -7,6 +7,9 @@ import requests
 from notification_lib.exceptions import NotificationException
 
 
+logging.getLogger().setLevel(logging.INFO)
+
+
 class GenericNovuManager:
     """Novu utils, template creation/ update."""
 
@@ -67,6 +70,7 @@ class GenericNovuManager:
         steps_from_generic: list[dict[str, Any]]
     ) -> list[dict[str, Any]]:
         """Format the steps that we get from generic novu so that we can use it in creation and update."""
+        logging.info(f"generic steps: {steps_from_generic}")
         steps = []
 
         for step in steps_from_generic:
@@ -77,9 +81,20 @@ class GenericNovuManager:
                 "content": step["template"]["content"],
             }
             if step["template"]["type"] == "push":
+                # Push notification has "title" has their content key
                 formated_template["title"] = step["template"]["title"]
-            if step["template"]["type"] == "email":
+
+            # If customHtml is true, it means we are passing a custom html
+            if (
+                step["template"]["type"] == "email"
+                and step["template"]["contentType"] == "customHtml"
+            ):
+                # Subject is the title of the email
                 formated_template["subject"] = step["template"]["subject"]
+                # Content is body of the email
+                formated_template["content"] = step["template"]["content"]
+                # contentType = customHtml indicates that the content is a custom html
+                formated_template["contentType"] = "customHtml"
 
             steps.append(
                 {
@@ -92,6 +107,7 @@ class GenericNovuManager:
                 }
             )
 
+        logging.info(f"formatted steps: {steps}")
         return steps
 
     @classmethod
