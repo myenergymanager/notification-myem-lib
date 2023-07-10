@@ -30,7 +30,7 @@ templates = [
                     "active": True,
                     "variables": [],
                     "content": "test push content",
-                    "title": "Ecowatt alerte periodique ",
+                    "title": "Ecowatt alerte periodique",
                     "_environmentId": "63bee3fc2ad2a2b52691e0c3",
                     "_organizationId": "63bee3fc2ad2a2b52691e0bd",
                     "_creatorId": "63bee3fc2ad2a2b52691e0b6",
@@ -196,8 +196,8 @@ class TestGenericNovuManager:
                     "type": "push",
                     "active": True,
                     "variables": [],
-                    "content": "test email content",
-                    "title": "Ecowatt alerte periodique ",
+                    "content": "test push content",
+                    "title": "Ecowatt alerte periodique",
                 },
                 "filters": [
                     {
