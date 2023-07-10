@@ -81,7 +81,7 @@ class GenericNovuManager:
                 "content": step["template"]["content"],
             }
             if step["template"]["type"] == "push":
-                # Push notification has "title" has their content key
+                # Push notification has "title" as their content key
                 formated_template["title"] = step["template"]["title"]
 
             # If customHtml is true, it means we are passing a custom html
