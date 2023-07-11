@@ -85,16 +85,17 @@ class GenericNovuManager:
                 formated_template["title"] = step["template"]["title"]
 
             # If customHtml is true, it means we are passing a custom html
-            if (
-                step["template"]["type"] == "email"
-                and step["template"]["contentType"] == "customHtml"
-            ):
-                # Subject is the title of the email
-                formated_template["subject"] = step["template"]["subject"]
-                # Content is body of the email
-                formated_template["content"] = step["template"]["content"]
-                # contentType = customHtml indicates that the content is a custom html
-                formated_template["contentType"] = "customHtml"
+            if step["template"]["type"] == "email":
+                if "contentType" in step["template"]:
+                    # Subject is the title of the email
+                    formated_template["subject"] = step["template"]["subject"]
+                    # Content is body of the email
+                    formated_template["content"] = step["template"]["content"]
+                    # contentType = customHtml indicates that the content is a custom html
+                    formated_template["contentType"] = "customHtml"
+                else:
+                    # Subject is the title of the email
+                    formated_template["subject"] = step["template"]["subject"]
 
             steps.append(
                 {

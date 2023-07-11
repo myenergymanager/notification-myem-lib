@@ -310,3 +310,15 @@ class TestGenericNovuManager:
 
         assert formatted_steps[1]["template"]["content"] == "<h1>test</h1>"
         assert formatted_steps[1]["template"]["contentType"] == "customHtml"
+
+    def test_format_steps_to_create_update_normal_content(self):
+        formatted_steps = GenericNovuManager.format_steps_to_create_update(templates[0]["steps"])
+
+        assert formatted_steps[1]["template"]["content"] == [
+            {
+                "content": "test email content",
+                "styles": {"textAlign": "left"},
+                "type": "text",
+            }
+        ]
+        assert "contentType" not in formatted_steps[1]["template"]
